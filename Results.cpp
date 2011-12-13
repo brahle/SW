@@ -108,7 +108,7 @@ Results Results::CreateCopyOnHost() {
 __device__ __host__ ResultsType Results::GetResult(int i, int j) const {
   if (i < -1 || j < -1 || i >= n_ || j >= m_) return 0;
   if (i == -1) {
-    if (j == -1) return 0;
+    if (j == -1) return special_;
     return previous_column_[j];
   }
   if (j == -1) {

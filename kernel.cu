@@ -34,7 +34,7 @@ __global__ void OneElement(Protein protein_A, Protein protein_B, int k,
   const Molecule &molecule_B = protein_B[i];
 
   ResultsType a, b, c;
-  a = R.GetResult(i-1, j-1); // TODO: ovdje fali cijena
+  a = R.GetResult(i-1, j-1) + DistCost(molecule_A, molecule_B);
   b = R.GetResult(i-1, j) + molecule_A.deletion_cost();
   c = R.GetResult(i, j-1) + molecule_B.deletion_cost();
 
