@@ -147,3 +147,6 @@ C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\cerrno
 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\errno.h
 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\share.h
+c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\utilities.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\device_launch_parameters.h

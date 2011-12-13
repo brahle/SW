@@ -103,12 +103,12 @@ struct Protein {
 		size_t molekula_s = sizeof(Molekula);
 		cudaStatus = cudaMalloc((void**)&dev_molekule, molekula_s * n);
 		if (cudaStatus != cudaSuccess) {
-			throw CudaAllocationException("Nisam uspio alocirati niz molekula");
+			throw CudaAllocationException(cudaStatus, "Nisam uspio alocirati niz molekula");
 		}
 		// onda kopiraj na device
 	    cudaStatus = cudaMemcpy(dev_molekule, molekule, molekula_s * n, cudaMemcpyHostToDevice);
 	    if (cudaStatus != cudaSuccess) {
-			throw CudaMemcpyException("Nisam uspio iskopoirati niz molekula");
+			throw CudaMemcpyException(cudaStatus, "Nisam uspio iskopoirati niz molekula");
 		}
 		
 		// na kraju napravi protein koji device moze koristiti
@@ -353,7 +353,7 @@ void smithWatermanCuda3(Protein prvi, Protein drugi, double *rezultat, double *c
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
 		if (cudaStatus != cudaSuccess) {
-			throw Exception("cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
+			throw Exception(cudaStatus, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
 		}
 
 		// Alociraj prvi i drugi protein na cudi.
@@ -390,7 +390,7 @@ void smithWatermanCuda2(int n, int m, Protein prvi, Protein drugi, double *rezul
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
 		if (cudaStatus != cudaSuccess) {
-			throw Exception("cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
+			throw Exception(cudaStatus, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
 		}
 
 		// Alociraj prvi i drugi protein na cudi.
@@ -400,11 +400,11 @@ void smithWatermanCuda2(int n, int m, Protein prvi, Protein drugi, double *rezul
 		// Alociraj i rezultat na cudi.
 		cudaStatus = cudaMalloc((void**)&dev_rezultat, double_s * (n+1) * (m+1));
 		if (cudaStatus != cudaSuccess) {
-			throw CudaAllocationException("nisam uspio alocirati polje za rezultate");
+			throw CudaAllocationException(cudaStatus, "nisam uspio alocirati polje za rezultate");
 		}
 	    cudaStatus = cudaMemcpy(dev_rezultat, rezultat, double_s * (n+1) * (m+1), cudaMemcpyHostToDevice);
 	    if (cudaStatus != cudaSuccess) {
-		    throw CudaMemcpyException("nisam uspio iskopirati poolje s rezultatima");
+		    throw CudaMemcpyException(cudaStatus, "nisam uspio iskopirati poolje s rezultatima");
 		}
 
 		for (int i = 0; i < n+m+1; ++i) {
@@ -412,14 +412,14 @@ void smithWatermanCuda2(int n, int m, Protein prvi, Protein drugi, double *rezul
 			swKernel2<<< 1, i+1 >>>(dev_prvi, dev_drugi, info, dev_rezultat);
 			cudaStatus = cudaDeviceSynchronize();
 			if (cudaStatus != cudaSuccess) {
-				throw Exception("cudaDeviceSynchronize je vratila pogresku nakon lansiranja kernela");
+				throw Exception(cudaStatus, "cudaDeviceSynchronize je vratila pogresku nakon lansiranja kernela");
 			}
 		}
 
 		// Vrati rezultat natrag na host.
 		cudaStatus = cudaMemcpy(rezultat, dev_rezultat, double_s * (n+1) * (m+1), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess) {
-			throw Exception("Nisam uspio vratiti rezultat na domacina");
+			throw Exception(cudaStatus, "Nisam uspio vratiti rezultat na domacina");
 		}
 
 	} catch (const Exception &ex) {

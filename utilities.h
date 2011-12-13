@@ -55,7 +55,7 @@ public:
 //////////////////////////////////////////////////
 template <typename T> T* kopirajArrayNaDevice(const T *ptr, int size) {
 	T* dev_ptr;
-	cudaStatus = cudaMalloc((void**)&dev_ptr, sizeof(T)*size);
+	cudaError_t cudaStatus = cudaMalloc((void**)&dev_ptr, sizeof(T)*size);
 	if (cudaStatus != cudaSuccess) {
 		throw CudaAllocationException(cudaStatus, "nisam uspio alocirati polje");
 	}
@@ -67,11 +67,10 @@ template <typename T> T* kopirajArrayNaDevice(const T *ptr, int size) {
 }
 
 template <typename T> void kopirajArrayNaHost(T &host_ptr, const T dev_ptr, int size) {
-	cudaError_t cudaStatus = cudaMemcpy(host_ptr, dev_ptr, sizeof(*T)*size, cudaMemcpyDeviceToHost);
+	cudaError_t cudaStatus = cudaMemcpy(host_ptr, dev_ptr, sizeof(*dev_ptr)*size, cudaMemcpyDeviceToHost);
 	if (cudaStatus != cudaSuccess) {
-		throw Exception("Nisam uspio vratiti rezultat na domacina");
+		throw Exception(cudaStatus, "Nisam uspio vratiti rezultat na domacina");
 	}
-	return host_ptr;
 }
 
 ////////////////////////////////////////////
