@@ -20,9 +20,7 @@ class Results
   ResultsTypePtr GetLastRow() const;
   void CopyLastRow(const ResultsTypePtr) const;
 
-  __device__ __host__ void SetResult(int i, int j, ResultsType value) {
-    results_[i*m_ + j] = value;
-  }
+  __device__ __host__ void SetResult(int i, int j, ResultsType value);
 
  private:
   int n_, m_;

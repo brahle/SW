@@ -34,6 +34,12 @@ Protein Protein::createCopyOnCuda() const {
 }
 
 
+/*
+// Implemented in the kernel.cu file
+__device__ __host__ Molecule& Protein::operator[](int i) { return molecules_[i]; }
+*/
+
+
 std::istream& operator>>(std::istream& in, Protein p) {
   in >> p.n_;
   p.molecules_ = new Molecule[p.n_];

@@ -1,6 +1,4 @@
-#ifndef __BRAHLE_CUDA_UTILITIES
-#define __BRAHLE_CUDA_UTILITIES
-
+#pragma once
 #include <string>
 
 #include "cuda_runtime.h"
@@ -96,26 +94,3 @@ template <typename T> void copyArrayToHost(T &host_ptr, const T dev_ptr, int siz
 		throw CudaException(cudaStatus, "Nisam uspio vratiti rezultat na domacina");
 	}
 }
-
-
-////////////////////////////////////////////
-// Funkcije za sinkronizaciju svih dretvi //
-////////////////////////////////////////////
-void syncCudaThreads() {
-	cudaError_t cudaStatus = cudaDeviceSynchronize();
-	if (cudaStatus != cudaSuccess) {
-		throw CudaException(cudaStatus, "cudaDeviceSynchronize je vratila pogresku nakon lansiranja kernela");
-	}
-}
-
-
-////////////////////////////
-// Razne korisne funkcije //
-////////////////////////////
-template <typename T> __device__ T sqr(const T& A) {
-  return A*A;
-}
-
-
-
-#endif

@@ -17,7 +17,7 @@ class Protein
 
   int n() const { return n_; }
   Molecule* molekule() const { return molecules_; }
-  __device__ __host__ Molecule& operator[](int i) { return molecules_[i]; }
+  __device__ __host__ Molecule& operator[](int i);
 
   friend std::istream& operator>>(std::istream&, Protein);
 

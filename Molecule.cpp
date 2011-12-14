@@ -25,3 +25,11 @@ std::istream& operator>>(std::istream& in, Molecule& molekula) {
   in >> molekula.x_ >> molekula.y_ >> molekula.z_;
   return in;
 }
+
+/*
+// Implemented in the kernel.cu file
+__device__ __host__ double Molecule::x() const { return x_; }
+__device__ __host__ double Molecule::y() const { return y_; }
+__device__ __host__ double Molecule::z() const { return z_; }
+__device__ __host__ double Molecule::deletion_cost() const { return deletion_cost_; }
+*/

@@ -20,6 +20,11 @@
 void smithWatermanCuda(Protein, Protein);
 
 
+template <typename T> __device__ T sqr(const T& A) {
+  return A*A;
+}
+
+
 __device__ double DistCost(const Molecule &A, const Molecule &B) {
   return sqr(A.x() - B.x()) + sqr(A.y() - B.y()) + sqr(A.z() - B.z());
 }
@@ -69,6 +74,14 @@ int main()
 }
 
 
+void SyncCudaThreads() {
+	cudaError_t cudaStatus = cudaDeviceSynchronize();
+	if (cudaStatus != cudaSuccess) {
+		throw CudaException(cudaStatus, "cudaDeviceSynchronize je vratila pogresku nakon lansiranja kernela");
+	}
+}
+
+
 void smithWatermanCuda(Protein prvi, Protein drugi) {
 	cudaError_t cudaStatus;
   Results results;
@@ -95,7 +108,7 @@ void smithWatermanCuda(Protein prvi, Protein drugi) {
 		// vrti petlju
 		for (int i = 0; i < n+m+1; ++i) {
 			OneElement<<< 1, i+1 >>>(dev_prvi, dev_drugi, i, dev_results);
-			syncCudaThreads();
+			SyncCudaThreads();
 		}
 
 		// Vrati rezultat natrag na host.
@@ -104,3 +117,31 @@ void smithWatermanCuda(Protein prvi, Protein drugi) {
 		ex.print();
 	}
 }
+
+////////////////////////////////////
+// Implementacije kernel funkcija //
+////////////////////////////////////
+
+__device__ __host__ ResultsType Results::GetResult(int i, int j) const {
+  if (i < -1 || j < -1 || i >= n_ || j >= m_) return 0;
+  if (i == -1) {
+    if (j == -1) return special_;
+    return previous_column_[j];
+  }
+  if (j == -1) {
+    return previous_row_[i];
+  }
+  return results_[i*m_ + j];
+}
+
+
+__device__ __host__ void Results::SetResult(int i, int j, ResultsType value) {
+  results_[i*m_ + j] = value;
+}
+
+__device__ __host__ double Molecule::x() const { return x_; }
+__device__ __host__ double Molecule::y() const { return y_; }
+__device__ __host__ double Molecule::z() const { return z_; }
+__device__ __host__ double Molecule::deletion_cost() const { return deletion_cost_; }
+
+__device__ __host__ Molecule& Protein::operator[](int i) { return molecules_[i]; }

@@ -105,6 +105,8 @@ Results Results::CreateCopyOnHost() {
 }
 
 
+/*
+// Implemented in the kernel.cu file
 __device__ __host__ ResultsType Results::GetResult(int i, int j) const {
   if (i < -1 || j < -1 || i >= n_ || j >= m_) return 0;
   if (i == -1) {
@@ -116,7 +118,7 @@ __device__ __host__ ResultsType Results::GetResult(int i, int j) const {
   }
   return results_[i*m_ + j];
 }
-
+*/
 
 ResultsTypePtr Results::GetLastRow() const {
   return results_ + (n_-1)*m_;
@@ -126,3 +128,11 @@ ResultsTypePtr Results::GetLastRow() const {
 void Results::CopyLastRow(ResultsTypePtr dest) const {
   memcpy(dest, GetLastRow(), sizeof(ResultsType)*m_);
 }
+
+
+/*
+// Implemented in the kernel.cu file
+__device__ __host__ void Results::SetResult(int i, int j, ResultsType value) {
+  results_[i*m_ + j] = value;
+}
+*/

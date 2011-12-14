@@ -11,10 +11,10 @@ class Molecule
 	Molecule();
 	~Molecule();
 
-  __device__ __host__ double x() const { return x_; }
-  __device__ __host__ double y() const { return y_; }
-  __device__ __host__ double z() const { return z_; }
-  __device__ __host__ double deletion_cost() const { return deletion_cost_; }
+  __device__ __host__ double x() const;
+  __device__ __host__ double y() const;
+  __device__ __host__ double z() const;
+  __device__ __host__ double deletion_cost() const;
   std::string name() const { return name_; }
   int position() const { return position_; }
   void set_position(int position) { position_ = position; }
