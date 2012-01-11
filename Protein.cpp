@@ -28,11 +28,11 @@ Protein::~Protein(void)
   }
 }
 
-
+/*
 Protein Protein::createCopyOnCuda() const {
   return Protein(n_, copyArrayToDevice(molecules_, n_), true);
 }
-
+*/
 
 /*
 // Implemented in the kernel.cu file
@@ -40,7 +40,7 @@ __device__ __host__ Molecule& Protein::operator[](int i) { return molecules_[i];
 */
 
 
-std::istream& operator>>(std::istream& in, Protein p) {
+std::istream& operator>>(std::istream& in, Protein& p) {
   in >> p.n_;
   p.molecules_ = new Molecule[p.n_];
   for (int i = 0; i < p.n_; ++i) {
@@ -48,3 +48,4 @@ std::istream& operator>>(std::istream& in, Protein p) {
   }
   return in;
 }
+

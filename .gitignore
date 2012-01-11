@@ -29,3 +29,8 @@ obj/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
+
+Debug/CUDA_hello_world2.log
+Debug/CUDA_hello_world2.log
+Debug/CUDA_hello_world2_manifest.rc
+Debug/*.tlog

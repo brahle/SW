@@ -16,13 +16,15 @@ class Results
   Results CreateCopyOnDevice();
   Results CreateCopyOnHost();
 
-  __device__ __host__ ResultsType GetResult(int, int) const;
+  __device__ ResultsType GetResultD(int, int) const;
+  __host__ ResultsType GetResultH(int, int) const;
   ResultsTypePtr GetLastRow() const;
   void CopyLastRow(const ResultsTypePtr) const;
+  void print() const;
 
   __device__ __host__ void SetResult(int i, int j, ResultsType value);
 
- private:
+ public:
   int n_, m_;
   ResultsTypePtr results_;
   ResultsTypePtr previous_row_;

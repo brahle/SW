@@ -78,7 +78,8 @@ void Results::Advance(const ResultsType special,
   memset(results_, 0, sizeof(ResultsType)*n_*m_);
 }
 
-
+/*
+// Implemented in the kernel.cu file
 Results Results::CreateCopyOnDevice() {
   return Results(
     n_,
@@ -103,7 +104,7 @@ Results Results::CreateCopyOnHost() {
     false
   );
 }
-
+*/
 
 /*
 // Implemented in the kernel.cu file
@@ -136,3 +137,13 @@ __device__ __host__ void Results::SetResult(int i, int j, ResultsType value) {
   results_[i*m_ + j] = value;
 }
 */
+
+void Results::print() const {
+  printf("n = %d, m = %d\n", n_, m_);
+  for (int i = -1; i < n_; ++i) {
+    for (int j = -1; j < m_; ++j) {
+      printf("%8g", GetResultH(i, j));
+    }
+    printf("\n");
+  }
+}

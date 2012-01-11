@@ -18,6 +18,9 @@ class Molecule
   std::string name() const { return name_; }
   int position() const { return position_; }
   void set_position(int position) { position_ = position; }
+  void set_x(double x) { x_ = x; }
+  void set_y(double y) { y_ = y; }
+  void set_z(double z) { z_ = z; }
 
   friend std::istream& operator>>(std::istream&, Molecule&);
 

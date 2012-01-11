@@ -15,11 +15,11 @@ class Protein
 
   Protein createCopyOnCuda() const;
 
-  int n() const { return n_; }
+  __device__ __host__ int n() const;
   Molecule* molekule() const { return molecules_; }
   __device__ __host__ Molecule& operator[](int i);
 
-  friend std::istream& operator>>(std::istream&, Protein);
+  friend std::istream& operator>>(std::istream&, Protein&);
 
  private:
   int n_;

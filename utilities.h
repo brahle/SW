@@ -13,14 +13,13 @@ protected:
 public:
 	Exception(const std::string &_message="") : message(_message) {}
 
-	void print() const {
+	virtual void print() const {
 		printf("Exception: %s!\n", message.c_str());
 	}
 };
 
 class CudaException : public Exception {
 protected:
-	std::string message;
 	cudaError_t error;
 public:
 	CudaException(const cudaError_t &_error, const std::string &_message="") : error(_error), Exception(_message) {}
@@ -62,6 +61,12 @@ public:
 //////////////////////////////////////////////////
 // Funkcije za kopiranje na karticu i s kartice //
 //////////////////////////////////////////////////
+template <typename T> T* copyArrayToDevice(const T *ptr, int size);
+template <typename T> T* copyArrayToHost(const T *ptr, int size);
+template <typename T> void copyArrayToHost(T &host_ptr, const T dev_ptr, int size);
+
+// Implementacije moraju biti u .cu fajlu.
+/*
 template <typename T> T* copyArrayToDevice(const T *ptr, int size) {
 	T* dev_ptr;
 	cudaError_t cudaStatus = cudaMalloc((void**)&dev_ptr, sizeof(T)*size);
@@ -88,9 +93,11 @@ template <typename T> T* copyArrayToHost(const T *ptr, int size) {
 	return host_ptr;
 }
 
+
 template <typename T> void copyArrayToHost(T &host_ptr, const T dev_ptr, int size) {
 	cudaError_t cudaStatus = cudaMemcpy(host_ptr, dev_ptr, sizeof(*dev_ptr)*size, cudaMemcpyDeviceToHost);
 	if (cudaStatus != cudaSuccess) {
 		throw CudaException(cudaStatus, "Nisam uspio vratiti rezultat na domacina");
 	}
 }
+*/

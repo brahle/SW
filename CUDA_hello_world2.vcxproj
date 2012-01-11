@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C8475115-8966-464F-BC61-72A8806D16E6}</ProjectGuid>
     <RootNamespace>CUDA_hello_world2</RootNamespace>
+    <ProjectName>SW CUDA</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
