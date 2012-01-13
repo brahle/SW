@@ -11,7 +11,6 @@
     <ClInclude Include="Protein.h" />
     <ClInclude Include="Info.h" />
     <ClInclude Include="Molecule.h" />
-    <ClInclude Include="Results.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="typedefs.h" />
   </ItemGroup>
@@ -19,7 +18,6 @@
     <ClCompile Include="Protein.cpp" />
     <ClCompile Include="Info.cpp" />
     <ClCompile Include="Molecule.cpp" />
-    <ClCompile Include="Results.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CUDA_hello_world2.rc" />

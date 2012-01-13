@@ -19,15 +19,36 @@ Protein::Protein(int n, Molecule* molecules, bool on_cuda=false)
 }
 
 
+Protein::Protein(const Protein &P)
+  : n_(P.n()),
+    on_cuda_(P.on_cuda_)
+{
+  molecules_ = new Molecule[n_];
+  memcpy(molecules_, P.molecules_, sizeof(Molecule) * n_);
+}
+
+
 Protein::~Protein(void)
 {
-  printf("Hello!\n");
   if (on_cuda_) {
     cudaFree(molecules_);
   } else {
-    printf("brisem molekule!\n");
     delete [] molecules_;
-    printf("uspjesno sam se skrsio!\n");
+  }
+}
+
+
+void Protein::Resize(int newSize) {
+  Molecule *new_molecules = new Molecule[newSize];
+  memcpy(new_molecules, molecules_, std::min(newSize, n_) * sizeof(Molecule));
+  delete [] molecules_;
+  molecules_ = new_molecules;
+  n_ = newSize;
+}
+
+void Protein::Reverse() {
+  for (int i = 0; i*2 < n_; ++i) {
+    std::swap(molecules_[i], molecules_[n_-i-1]);
   }
 }
 

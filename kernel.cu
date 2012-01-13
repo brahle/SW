@@ -16,9 +16,8 @@
 #include "Protein.h"
 #include "Molecule.h"
 #include "Info.h"
-#include "Results.h"
 
-void smithWatermanCuda(const Protein&, const Protein&);
+void smithWatermanCuda(Protein&, Protein&);
 
 int main()
 {
@@ -60,95 +59,105 @@ struct SimpleMolecule {
   double x, y, z, dc;
 };
 
-__device__  ResultsType GetResult(ResultsType *R, int n, int m, int i, int j) {
-  if (i < -1 || j < -1 || i >= n || j >= m) return 0;
+__device__  ResultType GetResult(ResultType *R, int n, int m, int i, int j) {
+  if (i < -1 || j < -1 || i >= n || j >= m) return ResultType(-1.0, 0);
   return R[(i+1)*(m+1) + j+1];
 }
 
-__device__ void SetResult(ResultsType *R, int n, int m, int i, int j,
-                          ResultsType val) {
+__device__ void SetResult(ResultType *R, int n, int m, int i, int j,
+                          ResultType val) {
   if (i < 0 || j < 0 || i >= n || j >= m) return;
   R[(i+1)*(m+1) + j+1] = val;
 }
 
 __device__ double DistCost(const SimpleMolecule &A, const SimpleMolecule &B) {
-  return sqr(A.x - B.x) + sqr(A.y - B.y) + sqr(A.z - B.z);
+  return 150 - (sqr(A.x - B.x) + sqr(A.y - B.y) + sqr(A.z - B.z));
 }
 
 __global__ void Step(int n1, SimpleMolecule *A,
                      int n2, SimpleMolecule *B,
-                     int k, ResultsType *R) {
+                     int k, ResultType *R) {
   int i = k - threadIdx.x;
   int j = threadIdx.x;
   
   if (i >= n1 || j >= n2) {
     return;
   }
-  ResultsType a, b, c;
-  a = GetResult(R, n1, n2, i-1, j-1) + DistCost(A[i], B[j]);
-  b = GetResult(R, n1, n2, i-1, j) + A[i].dc;
-  c = GetResult(R, n1, n2, i, j-1) + B[j].dc;
+  ResultValue a, b, c;
+  a = GetResult(R, n1, n2, i-1, j-1).value + DistCost(A[i], B[j]);
+  b = GetResult(R, n1, n2, i-1, j).value + A[i].dc;
+  c = GetResult(R, n1, n2, i, j-1).value + B[j].dc;
   
 	if (a >= b && a >= c) {
-    SetResult(R, n1, n2, i, j, a);
+    SetResult(R, n1, n2, i, j, ResultType(a, 1));
 	}
 	else if (b >= a && b >= c) {
-    SetResult(R, n1, n2, i, j, b);
+    SetResult(R, n1, n2, i, j, ResultType(b, 2));
 	}
 	else if (c >= b && c >= a) {
-    SetResult(R, n1, n2, i, j, c);
+    SetResult(R, n1, n2, i, j, ResultType(c, 3));
 	}
 }
+
+__device__ __host__ RESULTTYPE::RESULTTYPE() : value(0), move(-1) {}
+__device__ __host__ RESULTTYPE::RESULTTYPE(ResultValue v, int m): value(v), move(m) {}
 
 
 __device__ __host__ int Protein::n() const { return n_; }
 
-void PrintResults(ResultsType *R, int n, int m) {
+void PrintResults(ResultType *R, int n, int m) {
   for (int i = 0; i <= n; ++i) {
     for (int j = 0; j <= m; ++j) {
-      printf("%8g", R[i*(m+1) + j]);
+      printf("%9g", R[i*(m+1) + j].value);
     }
     printf("\n");
   }
 }
 
-SimpleMolecule* SimpleMoleculeToDevice(const Protein &p, int start, int end)  {
+SimpleMolecule* SimpleMoleculeToDevice(const Protein &p, int start, int end, bool reverse=false)  {
   SimpleMolecule* host_ptr = new SimpleMolecule[end - start];
   for (int i = start; i < end; ++i) {
-    host_ptr[i-start].x = p[i].x();
-    host_ptr[i-start].y = p[i].y();
-    host_ptr[i-start].z = p[i].z();
-    host_ptr[i-start].dc = p[i].deletion_cost();
+    if (!reverse) {
+      host_ptr[i-start].x = p[i].x();
+      host_ptr[i-start].y = p[i].y();
+      host_ptr[i-start].z = p[i].z();
+      host_ptr[i-start].dc = p[i].deletion_cost();
+    } else {
+      host_ptr[i-start].x = p[p.n()-1-i].x();
+      host_ptr[i-start].y = p[p.n()-1-i].y();
+      host_ptr[i-start].z = p[p.n()-1-i].z();
+      host_ptr[i-start].dc = p[p.n()-1-i].deletion_cost();
+    }
   }
   SimpleMolecule* ret = copyArrayToDevice(host_ptr, p.n());
   delete [] host_ptr;
   return ret;
 }
 
-ResultsType GetResultHost(ResultsType* R, int i, int j, int n, int m) {
-  if (i < -1 || j < -1 || i >= n || j >= m) return 0;
-  if (i == -1 || j == -1) return 0;
+ResultType GetResultHost(ResultType* R, int i, int j, int n, int m) {
+  if (i < -1 || j < -1 || i >= n || j >= m) return ResultType(0, -1);
+  if (i == -1 || j == -1) return ResultType(0, -1);
   return R[(i+1)*(m+1) + j+1];
 }
 
-ResultsType* SimpleResultsToDevice(ResultsType* R, int offsetX, int offsetY,
+ResultType* SimpleResultsToDevice(ResultType* R, int offsetX, int offsetY,
                                    int n, int m, int countX, int countY) {
   int size = (countX+1) * (countY+1);
-  ResultsType* host_ptr = new ResultsType[size];
+  ResultType* host_ptr = new ResultType[size];
   for (int i = -1; i < countX; ++i) {
     for (int j = -1; j < countY; ++j) {
       host_ptr[(i+1)*(countY+1) + j+1] = GetResultHost(R, offsetX+i, offsetY+j, n, m);
     }
   }
-  ResultsType* ret = copyArrayToDevice(host_ptr, size);
+  ResultType* ret = copyArrayToDevice(host_ptr, size);
   delete [] host_ptr;
   return ret;
 }
 
-void SimpleResultsToHost(ResultsType* R, int offsetX, int offsetY, int n, int m,
-                         ResultsType* R_dev, int countX, int countY) {
+void SimpleResultsToHost(ResultType* R, int offsetX, int offsetY, int n, int m,
+                         ResultType* R_dev, int countX, int countY) {
   int size = (countX+1) * (countY+1);
-  ResultsType* host_ptr = copyArrayToHost(R_dev, size);
+  ResultType* host_ptr = copyArrayToHost(R_dev, size);
   for (int i = 1; i <= countX; ++i) {
     for (int j = 1; j <= countY; ++j) {
       R[(i+offsetX)*(m+1) + (j+offsetY)] = host_ptr[i*(countY+1) + j];
@@ -157,22 +166,60 @@ void SimpleResultsToHost(ResultsType* R, int offsetX, int offsetY, int n, int m,
   delete [] host_ptr;
 }
 
-ResultsType* SimpleResultsInit(int n, int m) {
-  ResultsType *ret = new ResultsType[(n+1) * (m+1)];
-  memset(ret, 0, sizeof(ResultsType) * (n+1) * (m+1));
+ResultType* SimpleResultsInit(int n, int m) {
+  ResultType *ret = new ResultType[(n+1) * (m+1)];
   return ret;
 }
 
-void smithWatermanCuda(const Protein &prvi, const Protein &drugi) {
-	cudaError_t cudaStatus;
 
-	int n = prvi.n();
-  int m = drugi.n();
-  ResultsType *results = SimpleResultsInit(n, m);
+void solveOnePhase(const Protein &first, const Protein &second, int block_size,
+                   ResultType *results) {
+  int n = first.n();
+  int m = second.n();
   SimpleMolecule *A;
   SimpleMolecule *B;
-  ResultsType *R;
-  
+  ResultType *R;
+
+  for (int offsetX = 0; offsetX < n; offsetX += block_size) {
+    for (int offsetY = 0; offsetY < m; offsetY += block_size) {
+      int blockX = block_size;
+      int blockY = block_size;
+      int endX = offsetX + block_size;
+      int endY = offsetY + block_size;
+      if (offsetX + block_size >= n) {
+        blockX = n - offsetX;
+        endX = n;
+      }
+      if (offsetY + block_size >= m) {
+        blockY = m - offsetY;
+        endY = m;
+      }
+
+      printf("Rjesavam blok od (%d,%d) do (%d,%d)!\n", offsetX, offsetY, endX, endY);
+
+      A = SimpleMoleculeToDevice(first, offsetX, endX);
+      B = SimpleMoleculeToDevice(second, offsetY, endY);
+      R = SimpleResultsToDevice(results, offsetX, offsetY, n, m, blockX, blockY);
+
+		  // vrti petlju
+		  for (int i = 0; i < blockX+blockY-1; ++i) {
+        Step<<< 1, i+1 >>>(blockX, A, blockY, B, i, R);
+        SyncCudaThreads();
+		  }
+
+      SimpleResultsToHost(results,  offsetX, offsetY, n, m, R, blockX, blockY);
+    }
+  }
+
+  cudaFree(A);
+  cudaFree(B);
+  cudaFree(R);
+}
+
+
+ void smithWatermanCuda(Protein &first, Protein &second) {
+	cudaError_t cudaStatus;
+
   try {
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
@@ -181,51 +228,71 @@ void smithWatermanCuda(const Protein &prvi, const Protein &drugi) {
 		}
 
     int block_size = 2;
+    int n = first.n();
+    int m = second.n();
 
-    for (int offsetX = 0; offsetX < n; offsetX += block_size) {
-      for (int offsetY = 0; offsetY < m; offsetY += block_size) {
-        int blockX = block_size;
-        int blockY = block_size;
-        int endX = offsetX + block_size;
-        int endY = offsetY + block_size;
-        if (offsetX + block_size >= n) {
-          blockX = n - offsetX;
-          endX = n;
+    ResultType *results = SimpleResultsInit(n, m);
+    solveOnePhase(first, second, block_size, results);
+    PrintResults(results, n, m);
+    printf("Faza 1 gotova, okrecem nizove i krecem na fazu 2.\n");
+
+    int MX, MY;
+    double mv = -1e100;
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < m; ++j) {
+        if (GetResultHost(results, i, j, n, m).value > mv) {
+          MX = i;
+          MY = j;
+          mv = GetResultHost(results, i, j, n, m).value;
         }
-        if (offsetY + block_size >= m) {
-          blockY = m - offsetY;
-          endY = m;
-        }
-        printf("Rjesavam blok od (%d,%d) do (%d,%d)!\n", offsetX, offsetY, endX, endY);
-
-        A = SimpleMoleculeToDevice(prvi, offsetX, endX);
-        B = SimpleMoleculeToDevice(drugi, offsetY, endY);
-        R = SimpleResultsToDevice(results, offsetX, offsetY, n, m, blockX, blockY);
-
-		    // vrti petlju
-		    for (int i = 0; i < blockX+blockY-1; ++i) {
-          Step<<< 1, i+1 >>>(blockX, A, blockY, B, i, R);
-          SyncCudaThreads();
-		    }
-
-        SimpleResultsToHost(results,  offsetX, offsetY, n, m, R, blockX, blockY);
       }
     }
-    PrintResults(results, n, m);
-	} catch (const Exception &ex) {
+    printf("Maksimum (%g) mi je u polju (%d,%d)\n", mv, MX, MY);
+    
+    Protein first_r(first);
+    first_r.Resize(MX+1);
+    first_r.Reverse();
+    Protein second_r(second);
+    second_r.Resize(MY+1);
+    second_r.Reverse();
+
+    ResultType *results2 = SimpleResultsInit(MX+1, MY+1);
+    solveOnePhase(first_r, second_r, block_size, results2);
+    PrintResults(results2, MX+1, MY+1);
+
+    int mx, my;
+    mv = -1e100;
+    for (int i = 0; i < MX+1; ++i) {
+      for (int j = 0; j < MY+1; ++j) {
+        if (GetResultHost(results2, i, j, MX+1, MY+1).value > mv) {
+          mx = i;
+          my = j;
+          mv = GetResultHost(results2, i, j, MX+1, MY+1).value;
+        }
+      }
+    }
+    printf("Maksimum (%g) mi je u polju (%d,%d)\n", mv, mx, my);
+    
+    int top = MX-mx;
+    int left = MY-my;
+    int bottom = MX;
+    int right = MY;
+
+    printf("Najbolje rjesenje mi je od (%d,%d) do (%d,%d)\n", top, left, bottom, right);
+
+
+
+    delete [] results;
+  } catch (const Exception &ex) {
 		ex.print();
 	}
 
-  cudaFree(A);
-  cudaFree(B);
-  cudaFree(R);
-  delete [] results;
 }
 
 
-void SaveResults(ResultsType *R_dev, int n, int m, ResultsType *R_host,
+void SaveResults(ResultType *R_dev, int n, int m, ResultType *R_host,
                  int offsetX, int offsetY, int N, int M) {
-    ResultsType *R_h = copyArrayToHost(R_dev, (n+1) * (m+1));
+    ResultType *R_h = copyArrayToHost(R_dev, (n+1) * (m+1));
     for (int i = 1; i <= n; ++i) {
       for (int j = 1; j <= m; ++j) {
         R_host[(offsetX+i-1)*M + (offsetY+j-1)] = R_h[i*(m+1) + j];
@@ -238,31 +305,6 @@ Protein Protein::createCopyOnCuda() const {
   return Protein(n_, copyArrayToDevice(molecules_, n_), true);
 }
 
-Results Results::CreateCopyOnDevice() {
-  return Results(
-    n_,
-    m_,
-    copyArrayToDevice(results_, n_*m_),
-    copyArrayToDevice(previous_row_, m_),
-    copyArrayToDevice(previous_column_, n_),
-    special_,
-    true
-  );
-}
-
-
-Results Results::CreateCopyOnHost() {
-  return Results(
-    n_,
-    m_,
-    copyArrayToHost(results_, n_*m_),
-    copyArrayToHost(previous_row_, m_),
-    copyArrayToHost(previous_column_, n_),
-    special_,
-    false
-  );
-}
-
 
 
 
@@ -270,22 +312,6 @@ Results Results::CreateCopyOnHost() {
 ////////////////////////////////////
 // Implementacije kernel funkcija //
 ////////////////////////////////////
-ResultsType Results::GetResult(int i, int j) const {
-  if (i < -1 || j < -1 || i >= n_ || j >= m_) return 0;
-  if (i == -1) {
-    if (j == -1) return special_;
-    return previous_column_[j];
-  }
-  if (j == -1) {
-    return previous_row_[i];
-  }
-  return results_[i*m_ + j];
-}
-
-__device__ __host__ void Results::SetResult(int i, int j, ResultsType value) {
-  results_[i*m_ + j] = value;
-}
-
 double Molecule::x() const { 
   return x_;
 }

@@ -8,11 +8,21 @@ Molecule::Molecule()
       y_(0),
       z_(0),
       deletion_cost_(0),
-      name_(),
+      name_(0),
       position_(0)
 {
 }
 
+
+Molecule::Molecule(const Molecule &M)
+    : x_(M.x_),
+      y_(M.y_),
+      z_(M.z_),
+      deletion_cost_(M.deletion_cost_),
+      name_(M.name_),
+      position_(M.position_)
+{
+}
 
 Molecule::~Molecule()
 {

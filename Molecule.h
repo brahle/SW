@@ -9,13 +9,14 @@ class Molecule
 {
  public:
 	Molecule();
+  Molecule(const Molecule&);
 	~Molecule();
 
   double x() const;
   double y() const;
   double z() const;
   double deletion_cost() const;
-  std::string name() const { return name_; }
+  int name() const { return name_; }
   int position() const { return position_; }
   void set_position(int position) { position_ = position; }
   void set_x(double x) { x_ = x; }
@@ -27,7 +28,7 @@ class Molecule
  private:
   double x_, y_, z_;
 	double deletion_cost_;
-  std::string name_;
+  int name_;
 	int position_;
 };
 
