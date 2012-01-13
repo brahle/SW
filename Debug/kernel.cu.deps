@@ -147,14 +147,7 @@ c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\cerrno
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\errno.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\share.h
-c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\iostream
-c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\fstream
-c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\utilities.h
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\device_launch_parameters.h
-c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\typedefs.h
-c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\Protein.h
-c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\algorithm
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\vector
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\memory
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\intrin.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
@@ -243,6 +236,15 @@ c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\xfwrap1
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\xxshared
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\xfwrap1
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\xxshared
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\xfunctional
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\iostream
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\fstream
+c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\utilities.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\device_launch_parameters.h
+c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\typedefs.h
+c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\Protein.h
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\algorithm
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h
 c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\Molecule.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h

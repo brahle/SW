@@ -1,4 +1,4 @@
-﻿Build started 2012-01-13 22:25:21.
+﻿Build started 2012-01-13 22:51:19.
      1>Project "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\CUDA_hello_world2.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\SW CUDA.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -8,18 +8,18 @@
        Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
        CudaBuild:
          Compiling CUDA source file kernel.cu...
-         cmd.exe /C "C:\Users\brahle\AppData\Local\Temp\5ac41514e30f493fbbb3a408d06ddd51.cmd"
+         cmd.exe /C "C:\Users\brahle\AppData\Local\Temp\28cf4738d3a44f3ab48afa32c8b72b85.cmd"
          "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu"
          
          C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu" 
          kernel.cu
-         tmpxft_00001974_00000000-0_kernel.cudafe1.gpu
-         tmpxft_00001974_00000000-5_kernel.cudafe2.gpu
+         tmpxft_00002338_00000000-0_kernel.cudafe1.gpu
+         tmpxft_00002338_00000000-5_kernel.cudafe2.gpu
          kernel.cu
-     1>ptxas C : /Users/brahle/AppData/Local/Temp/tmpxft_00001974_00000000-1_kernel.ptx, line 145; warning : Double is not supported. Demoting to float
-         tmpxft_00001974_00000000-0_kernel.cudafe1.cpp
-         tmpxft_00001974_00000000-11_kernel.ii
-         Deleting file "tmpxft_00001974_00000000-6_kernel.cpp3.o".
+     1>ptxas C : /Users/brahle/AppData/Local/Temp/tmpxft_00002338_00000000-1_kernel.ptx, line 145; warning : Double is not supported. Demoting to float
+         tmpxft_00002338_00000000-0_kernel.cudafe1.cpp
+         tmpxft_00002338_00000000-11_kernel.ii
+         Deleting file "tmpxft_00002338_00000000-6_kernel.cpp3.o".
        ClCompile:
          All outputs are up-to-date.
        ResourceCompile:
@@ -54,4 +54,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:05.14
+Time Elapsed 00:00:04.86

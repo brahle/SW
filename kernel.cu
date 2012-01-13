@@ -8,6 +8,7 @@
 #include <cstring>
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <fstream>
 
@@ -217,7 +218,34 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
 }
 
 
- void smithWatermanCuda(Protein &first, Protein &second) {
+void Reconstruct(ResultType *R, int x, int y, int n, int m,
+                 const Protein &A, const Protein &B,
+                 std::vector< std::pair< int, int > > &res) {
+  if (x < 0 || y < 0) return;
+  int move = GetResultHost(R, x, y, n, m).move;
+  if (move == 1) {
+    res.push_back(std::make_pair(A[x].name(), B[y].name()));
+    Reconstruct(R, x-1, y-1, n, m, A, B, res);
+  } else if (move == 2) {
+    res.push_back(std::make_pair(A[x].name(), -1));
+    Reconstruct(R, x-1, y, n, m, A, B, res);
+  } else if (move == 3) {
+    res.push_back(std::make_pair(-1, B[y].name()));
+    Reconstruct(R, x, y-1, n, m, A, B, res);
+  } 
+}
+
+void Output(const std::vector< std::pair< int, int > > &A) {
+  for (int i = 0; i < (int)A.size(); ++i) {
+    if (A[i].first == -1) printf("%8s", "-");
+    else printf("%8d", A[i].first);
+    if (A[i].second == -1) printf("%8s", "-");
+    else printf("%8d", A[i].second);
+    printf("\n");
+  }
+}
+
+void smithWatermanCuda(Protein &first, Protein &second) {
 	cudaError_t cudaStatus;
 
   try {
@@ -233,8 +261,6 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
 
     ResultType *results = SimpleResultsInit(n, m);
     solveOnePhase(first, second, block_size, results);
-    PrintResults(results, n, m);
-    printf("Faza 1 gotova, okrecem nizove i krecem na fazu 2.\n");
 
     int MX, MY;
     double mv = -1e100;
@@ -247,7 +273,6 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
         }
       }
     }
-    printf("Maksimum (%g) mi je u polju (%d,%d)\n", mv, MX, MY);
     
     Protein first_r(first);
     first_r.Resize(MX+1);
@@ -258,7 +283,6 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
 
     ResultType *results2 = SimpleResultsInit(MX+1, MY+1);
     solveOnePhase(first_r, second_r, block_size, results2);
-    PrintResults(results2, MX+1, MY+1);
 
     int mx, my;
     mv = -1e100;
@@ -271,7 +295,6 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
         }
       }
     }
-    printf("Maksimum (%g) mi je u polju (%d,%d)\n", mv, mx, my);
     
     int top = MX-mx;
     int left = MY-my;
@@ -279,8 +302,9 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
     int right = MY;
 
     printf("Najbolje rjesenje mi je od (%d,%d) do (%d,%d)\n", top, left, bottom, right);
-
-
+    std::vector< std::pair< int, int > > solution;
+    Reconstruct(results2, mx, my, MX+1, MY+1, first_r, second_r, solution);
+    Output(solution);
 
     delete [] results;
   } catch (const Exception &ex) {
