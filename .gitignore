@@ -34,3 +34,8 @@ Debug/CUDA_hello_world2.log
 Debug/CUDA_hello_world2.log
 Debug/CUDA_hello_world2_manifest.rc
 Debug/*.tlog
+Debug/CUDA_hello_world2.log
+Debug/kernel.cu.obj
+Debug/kernel.cu.deps
+Debug/CUDA_hello_world2.log
+Debug/*.tlog

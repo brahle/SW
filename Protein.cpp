@@ -21,6 +21,7 @@ Protein::Protein(int n, Molecule* molecules, bool on_cuda=false)
 
 Protein::~Protein(void)
 {
+  printf("Hello!");
   if (on_cuda_) {
     cudaFree(molecules_);
   } else {

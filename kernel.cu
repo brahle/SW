@@ -67,7 +67,8 @@ __device__  ResultsType GetResult(ResultsType *R, int n, int m, int i, int j) {
   return R[(i+1)*(m+1) + j+1];
 }
 
-__device__ void SetResult(ResultsType *R, int n, int m, int i, int j, ResultsType val) {
+__device__ void SetResult(ResultsType *R, int n, int m, int i, int j,
+                          ResultsType val) {
   if (i < 0 || j < 0 || i >= n || j >= m) return;
   R[(i+1)*(m+1) + j+1] = val;
 }
@@ -76,9 +77,9 @@ __device__ double DistCost(const SimpleMolecule &A, const SimpleMolecule &B) {
   return sqr(A.x - B.x) + sqr(A.y - B.y) + sqr(A.z - B.z);
 }
 
-__global__ void Step2(int n1, SimpleMolecule *A,
-                      int n2, SimpleMolecule *B,
-                      int k, ResultsType *R) {
+__global__ void Step(int n1, SimpleMolecule *A,
+                     int n2, SimpleMolecule *B,
+                     int k, ResultsType *R) {
   int i = k - threadIdx.x;
   int j = threadIdx.x;
   
@@ -105,9 +106,9 @@ __global__ void Step2(int n1, SimpleMolecule *A,
 __device__ __host__ int Protein::n() const { return n_; }
 
 
-SimpleMolecule* SimpleMoleculeToDevice(Protein p)  {
-  SimpleMolecule* host_ptr = new SimpleMolecule[p.n()];
-  for (int i = 0; i < p.n(); ++i) {
+SimpleMolecule* SimpleMoleculeToDevice(Protein p, int start, int end)  {
+  SimpleMolecule* host_ptr = new SimpleMolecule[end - start];
+  for (int i = start; i < end; ++i) {
     host_ptr[i].x = p[i].x();
     host_ptr[i].y = p[i].y();
     host_ptr[i].z = p[i].z();
@@ -118,13 +119,19 @@ SimpleMolecule* SimpleMoleculeToDevice(Protein p)  {
   return ret;
 }
 
+ResultsType GetResultHost(ResultsType* R, int i, int j, int n, int m) {
+  if (i < -1 || j < -1 || i >= n || j >= m) return 0;
+  if (i == -1 || j == -1) return 0;
+  return R[i*m + j];
+}
 
-ResultsType* SimpleResultsToDevice(Results R) {
-  int size = (R.n_+1) * (R.m_+1);
+ResultsType* SimpleResultsToDevice(ResultsType* R, int offsetX, int offsetY,
+                                   int n, int m, int countX, int countY) {
+  int size = (countX+1) * (countY+1);
   ResultsType* host_ptr = new ResultsType[size];
-  for (int i = -1; i < R.n_; ++i) {
-    for (int j = -1; j < R.m_; ++j) {
-      host_ptr[(i+1)*(R.m_+1) + j+1] = R.GetResult(i, j);
+  for (int i = -1; i < countX; ++i) {
+    for (int j = -1; j < countY; ++j) {
+      host_ptr[(i+1)*(countY+1) + j+1] = GetResultHost(R, offsetX+i, offsetY+j, n, m);
     }
   }
   ResultsType* ret = copyArrayToDevice(host_ptr, size);
@@ -132,18 +139,43 @@ ResultsType* SimpleResultsToDevice(Results R) {
   return ret;
 }
 
+void SimpleResultsToHost(ResultsType* R, int offsetX, int offsetY, int n, int m,
+                         ResultsType* R_dev, int countX, int countY) {
+  int size = (countX+1) * (countY+1);
+  ResultsType* host_ptr = copyArrayToHost(R_dev, size);
+  for (int i = 1; i <= countX; ++i) {
+    for (int j = 1; j <= countY; ++j) {
+      R[(i+offsetX)*(m+1) + (j+offsetY)] = host_ptr[i*(countY+1) + j];
+    }
+  }
+  delete [] host_ptr;
+}
+
+ResultsType* SimpleResultsInit(int n, int m) {
+  ResultsType *ret = new ResultsType[(n+1) * (m+1)];
+  memset(ret, 0, sizeof(ResultsType) * (n+1) * (m+1));
+  return ret;
+}
+
+void PrintResults(ResultsType *R, int n, int m) {
+  for (int i = 0; i <= n; ++i) {
+    for (int j = 0; j <= m; ++j) {
+      printf("%8g", R[i*(m+1) + j]);
+    }
+    printf("\n");
+  }
+}
 
 void smithWatermanCuda(Protein prvi, Protein drugi) {
 	cudaError_t cudaStatus;
-  Results results;
-	Results dev_results;
 
 	int n = prvi.n();
-	int m = drugi.n();
-  results.Init(n, m);
-  results.SetResult(0, 0, 20);
-  results.print();
-
+  int m = drugi.n();
+  ResultsType *results = SimpleResultsInit(n, m);
+  SimpleMolecule *A;
+  SimpleMolecule *B;
+  ResultsType *R;
+  
   try {
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
@@ -152,34 +184,39 @@ void smithWatermanCuda(Protein prvi, Protein drugi) {
 		}
 
     int n1 = prvi.n();
-    SimpleMolecule *A = SimpleMoleculeToDevice(prvi);
+    A = SimpleMoleculeToDevice(prvi, 0, n1);
     int n2 = drugi.n();
-    SimpleMolecule *B = SimpleMoleculeToDevice(drugi);
+    B = SimpleMoleculeToDevice(drugi, 0, n2);
+    R = SimpleResultsToDevice(results, 0, 0, n1, n2, n1, n2);
 
-    ResultsType *R = SimpleResultsToDevice(results);
 		// vrti petlju
 		for (int i = 0; i < n+m-1; ++i) {
       printf("Zovem kernel za %d. dijagonalu\n", i);
-
-      Step2<<< 1, i+1 >>>(n1, A, n2, B, i, R);
+      Step<<< 1, i+1 >>>(n1, A, n2, B, i, R);
       SyncCudaThreads();
 		}
 
-		// Vrati rezultat natrag na host.
-    ResultsType *R_h = copyArrayToHost(R, (n1+1) * (n2+1));
-    for (int i = 0; i <= n1; ++i) {
-      for (int j = 0; j <= n2; ++j) {
-        printf("%8g", R_h[i*(n2+1) + j]);
-      }
-      printf("\n");
-    }
-
-    cudaFree(A);
-    cudaFree(B);
-    cudaFree(R);
+    SimpleResultsToHost(results, 0, 0, n1, n2, R, n1, n2);
+    PrintResults(results, n1, n2);
 	} catch (const Exception &ex) {
 		ex.print();
 	}
+
+  cudaFree(A);
+  cudaFree(B);
+  cudaFree(R);
+  delete [] results;
+}
+
+
+void SaveResults(ResultsType *R_dev, int n, int m, ResultsType *R_host,
+                 int offsetX, int offsetY, int N, int M) {
+    ResultsType *R_h = copyArrayToHost(R_dev, (n+1) * (m+1));
+    for (int i = 1; i <= n; ++i) {
+      for (int j = 1; j <= m; ++j) {
+        R_host[(offsetX+i-1)*M + (offsetY+j-1)] = R_h[i*(m+1) + j];
+      }
+    }
 }
 
 
