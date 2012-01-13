@@ -142,7 +142,7 @@ void Results::print() const {
   printf("n = %d, m = %d\n", n_, m_);
   for (int i = -1; i < n_; ++i) {
     for (int j = -1; j < m_; ++j) {
-      printf("%8g", GetResultH(i, j));
+      printf("%8g", GetResult(i, j));
     }
     printf("\n");
   }

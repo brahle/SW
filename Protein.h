@@ -19,6 +19,11 @@ class Protein
   Molecule* molekule() const { return molecules_; }
   __device__ __host__ Molecule& operator[](int i);
 
+  double* CopyXToDevice() const;
+  double* CopyYToDevice() const;
+  double* CopyZToDevice() const;
+  double* CopyDCToDevice() const;
+
   friend std::istream& operator>>(std::istream&, Protein&);
 
  private:

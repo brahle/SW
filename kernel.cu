@@ -18,55 +18,7 @@
 #include "Info.h"
 #include "Results.h"
 
-
-class A 
-{
- public:
-  __device__ int Bar(int);
- private:
-  int *foo_;
-};
-
-__device__ int A::Bar(int x) {
-  return foo_[x];
-}
-
-
-class ResultsD
-{
- public:
-  ResultsD(void);
-//  ResultsD(int, int, ResultsTypePtr, ResultsTypePtr, ResultsTypePtr,
-//          ResultsType, bool);
-  ~ResultsD(void);
-
-//  void Init(int, int);
-//  void AdvanceToNewRow(const ResultsType, const ResultsTypePtr);
-//  void Advance(const ResultsType, const ResultsTypePtr);
-//  Results CreateCopyOnDevice();
-//  Results CreateCopyOnHost();
-
-  __device__ ResultsType GetResult(int, int) const;
-//  ResultsTypePtr GetLastRow() const;
-//  void CopyLastRow(const ResultsTypePtr) const;
-//  void print() const;
-
-  __device__ void SetResult(int i, int j, ResultsType value);
-
- public:
-  int n_, m_;
-  ResultsTypePtr results_;
-  ResultsTypePtr previous_row_;
-  ResultsTypePtr previous_column_;
-  ResultsType special_; // TODO: better name
-};
-
-ResultsD::ResultsD() {}
-ResultsD::~ResultsD() {}
-
-
 void smithWatermanCuda(Protein, Protein);
-
 
 int main()
 {
@@ -77,6 +29,7 @@ int main()
   input >> p1 >> p2;
   
   smithWatermanCuda(p1, p2);
+  printf("dosao sam do kraja...\n");
 
 	// cudaDeviceReset must be called before exiting in order for profiling and
 	// tracing tools such as Parallel Nsight and Visual Profiler to show complete traces.
@@ -87,7 +40,7 @@ int main()
     return 1;
   }
 
-  printf("dosao sam do kraja...");
+  printf("dosao sam do kraja...\n");
 	system("pause");
   return 0;
 }
@@ -105,40 +58,79 @@ template <typename T> __device__ T sqr(const T& A) {
   return A*A;
 }
 
+struct SimpleMolecule {
+  double x, y, z, dc;
+};
 
-__device__ double DistCost(const Molecule &A, const Molecule &B) {
-  return sqr(A.x() - B.x()) + sqr(A.y() - B.y()) + sqr(A.z() - B.z());
+__device__  ResultsType GetResult(ResultsType *R, int n, int m, int i, int j) {
+  if (i < -1 || j < -1 || i >= n || j >= m) return 0;
+  return R[(i+1)*(m+1) + j+1];
 }
 
+__device__ void SetResult(ResultsType *R, int n, int m, int i, int j, ResultsType val) {
+  if (i < 0 || j < 0 || i >= n || j >= m) return;
+  R[(i+1)*(m+1) + j+1] = val;
+}
 
-__global__ void OneElement(Protein protein_A, Protein protein_B, int k,
-                           ResultsD R, ResultsTypePtr bla) {
+__device__ double DistCost(const SimpleMolecule &A, const SimpleMolecule &B) {
+  return sqr(A.x - B.x) + sqr(A.y - B.y) + sqr(A.z - B.z);
+}
+
+__global__ void Step2(int n1, SimpleMolecule *A,
+                      int n2, SimpleMolecule *B,
+                      int k, ResultsType *R) {
   int i = k - threadIdx.x;
   int j = threadIdx.x;
   
-  if (i >= protein_A.n() || j >= protein_B.n()) {
+  if (i >= n1 || j >= n2) {
     return;
   }
-  const Molecule &molecule_A = protein_A[i];
-  const Molecule &molecule_B = protein_B[j];
-
   ResultsType a, b, c;
-  a = R.GetResult(i-1, j-1) + DistCost(molecule_A, molecule_B);
-  b = R.GetResult(i-1, j) + molecule_A.deletion_cost();
-  c = R.GetResult(i, j-1) + molecule_B.deletion_cost();
+  a = GetResult(R, n1, n2, i-1, j-1) + DistCost(A[i], B[j]);
+  b = GetResult(R, n1, n2, i-1, j) + A[i].dc;
+  c = GetResult(R, n1, n2, i, j-1) + B[j].dc;
   
 	if (a >= b && a >= c) {
-    R.SetResult(i, j, a);
+    SetResult(R, n1, n2, i, j, a);
 	}
-	if (b >= a && b >= c) {
-    R.SetResult(i, j, b);
+	else if (b >= a && b >= c) {
+    SetResult(R, n1, n2, i, j, b);
 	}
-	if (c >= b && c >= a) {
-    R.SetResult(i, j, c);
+	else if (c >= b && c >= a) {
+    SetResult(R, n1, n2, i, j, c);
 	}
 }
 
+
 __device__ __host__ int Protein::n() const { return n_; }
+
+
+SimpleMolecule* SimpleMoleculeToDevice(Protein p)  {
+  SimpleMolecule* host_ptr = new SimpleMolecule[p.n()];
+  for (int i = 0; i < p.n(); ++i) {
+    host_ptr[i].x = p[i].x();
+    host_ptr[i].y = p[i].y();
+    host_ptr[i].z = p[i].z();
+    host_ptr[i].dc = p[i].deletion_cost();
+  }
+  SimpleMolecule* ret = copyArrayToDevice(host_ptr, p.n());
+  delete [] host_ptr;
+  return ret;
+}
+
+
+ResultsType* SimpleResultsToDevice(Results R) {
+  int size = (R.n_+1) * (R.m_+1);
+  ResultsType* host_ptr = new ResultsType[size];
+  for (int i = -1; i < R.n_; ++i) {
+    for (int j = -1; j < R.m_; ++j) {
+      host_ptr[(i+1)*(R.m_+1) + j+1] = R.GetResult(i, j);
+    }
+  }
+  ResultsType* ret = copyArrayToDevice(host_ptr, size);
+  delete [] host_ptr;
+  return ret;
+}
 
 
 void smithWatermanCuda(Protein prvi, Protein drugi) {
@@ -159,53 +151,32 @@ void smithWatermanCuda(Protein prvi, Protein drugi) {
 			throw CudaException(cudaStatus, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
 		}
 
-		// Alociraj prvi i drugi protein na cudi.
-		Protein dev_prvi = prvi.createCopyOnCuda();
-		Protein dev_drugi = drugi.createCopyOnCuda();
+    int n1 = prvi.n();
+    SimpleMolecule *A = SimpleMoleculeToDevice(prvi);
+    int n2 = drugi.n();
+    SimpleMolecule *B = SimpleMoleculeToDevice(drugi);
 
-/*    Protein *ddev_prvi;
-    cudaMalloc((void**)&ddev_prvi, sizeof(Protein));
-    cudaMemcpy(ddev_prvi, &dev_prvi, sizeof(Protein), cudaMemcpyHostToDevice);*/
-
-		// Alociraj i rezultat na cudi.
-    dev_results = results.CreateCopyOnDevice();
-
-    ResultsTypePtr bla = copyArrayToDevice(results.results_, results.n_*results.m_);
-    ResultsD dev_results2;
-    dev_results2.n_ = results.n_;
-    dev_results2.m_ = results.m_;
-    dev_results2.results_ = copyArrayToDevice(results.results_, results.n_*results.m_);
-    dev_results2.previous_row_ = copyArrayToDevice(results.previous_row_, results.n_);
-    dev_results2.previous_column_ = copyArrayToDevice(results.previous_column_, results.m_);
-    dev_results2.special_ = results.special_;
-    
-/*    Results *ddev_results;
-    cudaMalloc((void**)&ddev_results, sizeof(Results));
-    cudaMemcpy(ddev_results, &dev_results, sizeof(Results), cudaMemcpyHostToDevice);*/
-
+    ResultsType *R = SimpleResultsToDevice(results);
 		// vrti petlju
 		for (int i = 0; i < n+m-1; ++i) {
-/*  		Protein dev_prvi = prvi.createCopyOnCuda();
-	  	Protein dev_drugi = drugi.createCopyOnCuda(); */
-
       printf("Zovem kernel za %d. dijagonalu\n", i);
-			OneElement<<< 1, i+1 >>>(dev_prvi, dev_drugi, i, dev_results2, bla);
-			SyncCudaThreads();
 
-		  // Vrati rezultat natrag na host.
-/*      results.results_ = copyArrayToHost(dev_results2.results_, results.n_*results.m_);
-      results.previous_row_ = copyArrayToHost(dev_results2.previous_row_, results.n_);
-      results.previous_column_ = copyArrayToHost(dev_results2.previous_column_, results.m_);
-      results.special_ = dev_results2.special_;
-      results.print(); */
+      Step2<<< 1, i+1 >>>(n1, A, n2, B, i, R);
+      SyncCudaThreads();
 		}
 
 		// Vrati rezultat natrag na host.
-    results.results_ = copyArrayToHost(dev_results2.results_, results.n_*results.m_);
-    results.previous_row_ = copyArrayToHost(dev_results2.previous_row_, results.n_);
-    results.previous_column_ = copyArrayToHost(dev_results2.previous_column_, results.m_);
-    results.special_ = dev_results.special_;
-    results.print();
+    ResultsType *R_h = copyArrayToHost(R, (n1+1) * (n2+1));
+    for (int i = 0; i <= n1; ++i) {
+      for (int j = 0; j <= n2; ++j) {
+        printf("%8g", R_h[i*(n2+1) + j]);
+      }
+      printf("\n");
+    }
+
+    cudaFree(A);
+    cudaFree(B);
+    cudaFree(R);
 	} catch (const Exception &ex) {
 		ex.print();
 	}
@@ -248,44 +219,7 @@ Results Results::CreateCopyOnHost() {
 ////////////////////////////////////
 // Implementacije kernel funkcija //
 ////////////////////////////////////
-
-__device__ ResultsType get_result(int i, int j) {
-
-}
-
-__device__ ResultsType ResultsD::GetResult(int i, int j) const {
-  if (i < -1 || j < -1 || i >= n_ || j >= m_) return 0;
-  if (i == -1) {
-    if (j == -1) return special_;
-    return previous_column_[j];
-  }
-  if (j == -1) {
-    return previous_row_[i];
-  }
-  return results_[i*m_ + j];
-}
-
-__device__ void ResultsD::SetResult(int i, int j, ResultsType value) {
-  results_[i*m_ + j] = value;
-}
-
-
-
-
-
-__device__ ResultsType Results::GetResultD(int i, int j) const {
-  if (i < -1 || j < -1 || i >= n_ || j >= m_) return 0;
-  if (i == -1) {
-    if (j == -1) return special_;
-    return previous_column_[j];
-  }
-  if (j == -1) {
-    return previous_row_[i];
-  }
-  return results_[i*m_ + j];
-}
-
-__host__ ResultsType Results::GetResultH(int i, int j) const {
+ResultsType Results::GetResult(int i, int j) const {
   if (i < -1 || j < -1 || i >= n_ || j >= m_) return 0;
   if (i == -1) {
     if (j == -1) return special_;
@@ -301,16 +235,16 @@ __device__ __host__ void Results::SetResult(int i, int j, ResultsType value) {
   results_[i*m_ + j] = value;
 }
 
-__device__ __host__ double Molecule::x() const { 
+double Molecule::x() const { 
   return x_;
 }
-__device__ __host__ double Molecule::y() const {
+double Molecule::y() const {
   return y_;
 }
-__device__ __host__ double Molecule::z() const {
+double Molecule::z() const {
   return z_;
 }
-__device__ __host__ double Molecule::deletion_cost() const {
+ double Molecule::deletion_cost() const {
   return deletion_cost_;
 }
 
@@ -347,3 +281,44 @@ template <typename T> void copyArrayToHost(T &host_ptr, const T dev_ptr, int siz
 		throw CudaException(cudaStatus, "Nisam uspio vratiti rezultat na domacina");
 	}
 }
+
+double* Protein::CopyXToDevice() const {
+	double* host_ptr = new double[n_];
+  for (int i = 0; i < n_; ++i) {
+    host_ptr[i] = molecules_[i].x();
+  }
+  double* ret = copyArrayToDevice(host_ptr, n_);
+  delete [] host_ptr;
+  return ret;
+}
+
+double* Protein::CopyYToDevice() const {
+	double* host_ptr = new double[n_];
+  for (int i = 0; i < n_; ++i) {
+    host_ptr[i] = molecules_[i].y();
+  }
+  double* ret = copyArrayToDevice(host_ptr, n_);
+  delete [] host_ptr;
+  return ret;
+}
+
+double* Protein::CopyZToDevice() const {
+	double* host_ptr = new double[n_];
+  for (int i = 0; i < n_; ++i) {
+    host_ptr[i] = molecules_[i].z();
+  }
+  double* ret = copyArrayToDevice(host_ptr, n_);
+  delete [] host_ptr;
+  return ret;
+}
+
+double* Protein::CopyDCToDevice() const {
+	double* host_ptr = new double[n_];
+  for (int i = 0; i < n_; ++i) {
+    host_ptr[i] = molecules_[i].deletion_cost();
+  }
+  double* ret = copyArrayToDevice(host_ptr, n_);
+  delete [] host_ptr;
+  return ret;
+}
+
