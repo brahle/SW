@@ -9,14 +9,12 @@
   <ItemGroup>
     <ClInclude Include="utilities.h" />
     <ClInclude Include="Protein.h" />
-    <ClInclude Include="Info.h" />
     <ClInclude Include="Molecule.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="typedefs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Protein.cpp" />
-    <ClCompile Include="Info.cpp" />
     <ClCompile Include="Molecule.cpp" />
   </ItemGroup>
   <ItemGroup>

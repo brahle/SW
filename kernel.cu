@@ -1,5 +1,3 @@
-// TODO: uredi ove includove
-
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
@@ -16,13 +14,11 @@
 #include "typedefs.h"
 #include "Protein.h"
 #include "Molecule.h"
-#include "Info.h"
 
 void smithWatermanCuda(Protein&, Protein&);
 
 int main()
 {
-  // TODO: ovdje nesto fali
   cudaError_t cudaStatus;
   std::ifstream input("input.txt", std::ifstream::in);
   Protein p1, p2;
