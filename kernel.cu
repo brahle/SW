@@ -18,7 +18,7 @@
 #include "Info.h"
 #include "Results.h"
 
-void smithWatermanCuda(Protein, Protein);
+void smithWatermanCuda(const Protein&, const Protein&);
 
 int main()
 {
@@ -29,7 +29,6 @@ int main()
   input >> p1 >> p2;
   
   smithWatermanCuda(p1, p2);
-  printf("dosao sam do kraja...\n");
 
 	// cudaDeviceReset must be called before exiting in order for profiling and
 	// tracing tools such as Parallel Nsight and Visual Profiler to show complete traces.
@@ -40,7 +39,6 @@ int main()
     return 1;
   }
 
-  printf("dosao sam do kraja...\n");
 	system("pause");
   return 0;
 }
@@ -105,14 +103,22 @@ __global__ void Step(int n1, SimpleMolecule *A,
 
 __device__ __host__ int Protein::n() const { return n_; }
 
+void PrintResults(ResultsType *R, int n, int m) {
+  for (int i = 0; i <= n; ++i) {
+    for (int j = 0; j <= m; ++j) {
+      printf("%8g", R[i*(m+1) + j]);
+    }
+    printf("\n");
+  }
+}
 
-SimpleMolecule* SimpleMoleculeToDevice(Protein p, int start, int end)  {
+SimpleMolecule* SimpleMoleculeToDevice(const Protein &p, int start, int end)  {
   SimpleMolecule* host_ptr = new SimpleMolecule[end - start];
   for (int i = start; i < end; ++i) {
-    host_ptr[i].x = p[i].x();
-    host_ptr[i].y = p[i].y();
-    host_ptr[i].z = p[i].z();
-    host_ptr[i].dc = p[i].deletion_cost();
+    host_ptr[i-start].x = p[i].x();
+    host_ptr[i-start].y = p[i].y();
+    host_ptr[i-start].z = p[i].z();
+    host_ptr[i-start].dc = p[i].deletion_cost();
   }
   SimpleMolecule* ret = copyArrayToDevice(host_ptr, p.n());
   delete [] host_ptr;
@@ -122,7 +128,7 @@ SimpleMolecule* SimpleMoleculeToDevice(Protein p, int start, int end)  {
 ResultsType GetResultHost(ResultsType* R, int i, int j, int n, int m) {
   if (i < -1 || j < -1 || i >= n || j >= m) return 0;
   if (i == -1 || j == -1) return 0;
-  return R[i*m + j];
+  return R[(i+1)*(m+1) + j+1];
 }
 
 ResultsType* SimpleResultsToDevice(ResultsType* R, int offsetX, int offsetY,
@@ -157,16 +163,7 @@ ResultsType* SimpleResultsInit(int n, int m) {
   return ret;
 }
 
-void PrintResults(ResultsType *R, int n, int m) {
-  for (int i = 0; i <= n; ++i) {
-    for (int j = 0; j <= m; ++j) {
-      printf("%8g", R[i*(m+1) + j]);
-    }
-    printf("\n");
-  }
-}
-
-void smithWatermanCuda(Protein prvi, Protein drugi) {
+void smithWatermanCuda(const Protein &prvi, const Protein &drugi) {
 	cudaError_t cudaStatus;
 
 	int n = prvi.n();
@@ -183,21 +180,38 @@ void smithWatermanCuda(Protein prvi, Protein drugi) {
 			throw CudaException(cudaStatus, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
 		}
 
-    int n1 = prvi.n();
-    A = SimpleMoleculeToDevice(prvi, 0, n1);
-    int n2 = drugi.n();
-    B = SimpleMoleculeToDevice(drugi, 0, n2);
-    R = SimpleResultsToDevice(results, 0, 0, n1, n2, n1, n2);
+    int block_size = 2;
 
-		// vrti petlju
-		for (int i = 0; i < n+m-1; ++i) {
-      printf("Zovem kernel za %d. dijagonalu\n", i);
-      Step<<< 1, i+1 >>>(n1, A, n2, B, i, R);
-      SyncCudaThreads();
-		}
+    for (int offsetX = 0; offsetX < n; offsetX += block_size) {
+      for (int offsetY = 0; offsetY < m; offsetY += block_size) {
+        int blockX = block_size;
+        int blockY = block_size;
+        int endX = offsetX + block_size;
+        int endY = offsetY + block_size;
+        if (offsetX + block_size >= n) {
+          blockX = n - offsetX;
+          endX = n;
+        }
+        if (offsetY + block_size >= m) {
+          blockY = m - offsetY;
+          endY = m;
+        }
+        printf("Rjesavam blok od (%d,%d) do (%d,%d)!\n", offsetX, offsetY, endX, endY);
 
-    SimpleResultsToHost(results, 0, 0, n1, n2, R, n1, n2);
-    PrintResults(results, n1, n2);
+        A = SimpleMoleculeToDevice(prvi, offsetX, endX);
+        B = SimpleMoleculeToDevice(drugi, offsetY, endY);
+        R = SimpleResultsToDevice(results, offsetX, offsetY, n, m, blockX, blockY);
+
+		    // vrti petlju
+		    for (int i = 0; i < blockX+blockY-1; ++i) {
+          Step<<< 1, i+1 >>>(blockX, A, blockY, B, i, R);
+          SyncCudaThreads();
+		    }
+
+        SimpleResultsToHost(results,  offsetX, offsetY, n, m, R, blockX, blockY);
+      }
+    }
+    PrintResults(results, n, m);
 	} catch (const Exception &ex) {
 		ex.print();
 	}
@@ -286,6 +300,7 @@ double Molecule::z() const {
 }
 
 __device__ __host__ Molecule& Protein::operator[](int i) { return molecules_[i]; }
+__device__ __host__ Molecule& Protein::operator[](int i) const { return molecules_[i]; }
 
 template <typename T> T* copyArrayToDevice(const T *ptr, int size) {
 	T* dev_ptr;

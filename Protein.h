@@ -17,7 +17,8 @@ class Protein
 
   __device__ __host__ int n() const;
   Molecule* molekule() const { return molecules_; }
-  __device__ __host__ Molecule& operator[](int i);
+  __device__ __host__ Molecule& operator[] (int i);
+  __device__ __host__ Molecule& operator[] (int i) const;
 
   double* CopyXToDevice() const;
   double* CopyYToDevice() const;

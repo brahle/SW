@@ -1,16 +1,27 @@
-﻿Build started 2012-01-13 15:27:25.
+﻿Build started 2012-01-13 16:30:52.
      1>Project "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\CUDA_hello_world2.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\SW CUDA.unsuccessfulbuild" because "AlwaysCreate" was specified.
        AddCudaCompileDeps:
-       Skipping target "AddCudaCompileDeps" because all output files are up-to-date with respect to the input files.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I. /FIcuda_runtime.h /c "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu" 
        AddCudaCompilePropsDeps:
        Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
        CudaBuild:
-       Skipping target "CudaBuild" because all output files are up-to-date with respect to the input files.
+         Compiling CUDA source file kernel.cu...
+         cmd.exe /C "C:\Users\brahle\AppData\Local\Temp\647e600f38c245d690a92cae0e8cf8b3.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu"
+         
+         C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu" 
+         kernel.cu
+         tmpxft_00001d98_00000000-0_kernel.cudafe1.gpu
+         tmpxft_00001d98_00000000-5_kernel.cudafe2.gpu
+         kernel.cu
+     1>ptxas C : /Users/brahle/AppData/Local/Temp/tmpxft_00001d98_00000000-1_kernel.ptx, line 132; warning : Double is not supported. Demoting to float
+         tmpxft_00001d98_00000000-0_kernel.cudafe1.cpp
+         tmpxft_00001d98_00000000-11_kernel.ii
+         Deleting file "tmpxft_00001d98_00000000-6_kernel.cpp3.o".
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Protein.cpp
-         Protein.cpp
+         All outputs are up-to-date.
        ResourceCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
@@ -44,4 +55,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.97
+Time Elapsed 00:00:04.38

@@ -21,11 +21,13 @@ Protein::Protein(int n, Molecule* molecules, bool on_cuda=false)
 
 Protein::~Protein(void)
 {
-  printf("Hello!");
+  printf("Hello!\n");
   if (on_cuda_) {
     cudaFree(molecules_);
   } else {
+    printf("brisem molekule!\n");
     delete [] molecules_;
+    printf("uspjesno sam se skrsio!\n");
   }
 }
 
