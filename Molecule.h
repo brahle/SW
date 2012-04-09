@@ -4,12 +4,14 @@
 #include <iostream>
 
 #include "cuda_runtime.h"
+#include"rotiraj.h"
 
 class Molecule
 {
  public:
 	Molecule();
   Molecule(const Molecule&);
+  Molecule::Molecule(const Point3D&, int, int);
 	~Molecule();
 
   double x() const;

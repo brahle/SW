@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include "rotiraj.h"
 
 Molecule::Molecule()
     : x_(0),
@@ -23,6 +24,18 @@ Molecule::Molecule(const Molecule &M)
       position_(M.position_)
 {
 }
+
+
+Molecule::Molecule(const Point3D &P, int name, int position)
+    : x_(P.C[0]),
+      y_(P.C[1]),
+      z_(P.C[2]),
+      deletion_cost_(0),
+      name_(name),
+      position_(position)
+{
+}
+
 
 Molecule::~Molecule()
 {

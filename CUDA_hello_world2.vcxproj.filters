@@ -12,10 +12,12 @@
     <ClInclude Include="Molecule.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="typedefs.h" />
+    <ClInclude Include="rotiraj.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Protein.cpp" />
     <ClCompile Include="Molecule.cpp" />
+    <ClCompile Include="rotiraj.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CUDA_hello_world2.rc" />

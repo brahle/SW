@@ -1,17 +1,4 @@
-#include <cstdio>
-#include <cmath>
-
-const double PI = 3.1415926535897932384626433832795;
-
-struct Point3D {
-  double C[3];
-  Point3D() {}
-  Point3D(double x, double y, double z) {
-    C[0] = x;
-    C[1] = y;
-    C[2] = z;
-  }
-};
+#include "rotiraj.h"
 
 Point3D operator+(Point3D A, const Point3D &B) {
   static int n = 3;
@@ -19,11 +6,6 @@ Point3D operator+(Point3D A, const Point3D &B) {
     A.C[i] += B.C[i];
   return A;
 }
-
-struct RotationMatrix {
-  double P[3][3];
-
-};
 
 Point3D operator*(const RotationMatrix &A, const Point3D &B) {
   Point3D ret;
@@ -83,6 +65,7 @@ Point3D dajPomak(double x, double y, double z) {
   return Point3D(x, y, z);
 }
 
+/*
 int main() {
   Point3D A;
   double alfa, beta, gama;
@@ -102,4 +85,4 @@ int main() {
 
   return 0;
 }
-
+*/

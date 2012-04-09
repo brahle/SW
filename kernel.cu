@@ -14,16 +14,39 @@
 #include "typedefs.h"
 #include "Protein.h"
 #include "Molecule.h"
+#include "rotiraj.h"
 
 void smithWatermanCuda(Protein&, Protein&);
 
 int main()
 {
-  cudaError_t cudaStatus;
-  std::ifstream input("input.txt", std::ifstream::in);
-  Protein p1, p2;
-  input >> p1 >> p2;
+  FILE *f = fopen("1a0iA.pdb", "r");
+  char buff[1024];
+  std::vector< Point3D > points, points2;
+  while (fgets(buff, sizeof(buff), f)) {
+    double x, y, z;
+    if (sscanf(buff, "ATOM %*d CA %*s %*s %*d %lf %lf %lf", &x, &y, &z)==3) {
+      points.push_back(Point3D(x,y,z));
+    }
+  }
+
+  double dx = 3;
+  double dy = 2;
+  double dz = 4;
+  double thetaX = 0.1;
+  double thetaY = 0.3;
+  double thetaZ = 0.5;
+  RotationMatrix rotacija = createRotationMatrix(thetaX, thetaY, thetaZ);
+  Point3D pomak = dajPomak(dx, dy, dz);
+
+  for (int i = 0; i < (int)points.size(); ++i) {
+    points2.push_back(rotacija * points[i] + pomak);
+  }
   
+  Protein p1(points), p2(points2);
+
+
+  cudaError_t cudaStatus;
   smithWatermanCuda(p1, p2);
 
 	// cudaDeviceReset must be called before exiting in order for profiling and
@@ -251,7 +274,7 @@ void smithWatermanCuda(Protein &first, Protein &second) {
 			throw CudaException(cudaStatus, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
 		}
 
-    int block_size = 2;
+    int block_size = 40;
     int n = first.n();
     int m = second.n();
 

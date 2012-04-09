@@ -1,11 +1,13 @@
 #pragma once
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include "cuda_runtime.h"
 
 #include "Molecule.h"
 #include "utilities.h"
+#include "rotiraj.h"
 
 class Protein
 {
@@ -13,6 +15,7 @@ class Protein
 	Protein(void);
   Protein(int, Molecule*, bool);
   Protein(const Protein&);
+  Protein(const std::vector< Point3D >&);
 	~Protein(void);
 
   Protein createCopyOnCuda() const;

@@ -28,6 +28,17 @@ Protein::Protein(const Protein &P)
 }
 
 
+Protein::Protein(const std::vector< Point3D > &P)
+  : n_(P.size()),
+    on_cuda_(false)
+{
+  molecules_ = new Molecule[n_];
+  for (int i = 0; i < n_; ++i) {
+    molecules_[i] = Molecule(P[i], i, i);
+  }
+}
+
+
 Protein::~Protein(void)
 {
   if (on_cuda_) {
