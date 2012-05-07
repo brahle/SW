@@ -16,10 +16,66 @@
 #include "Molecule.h"
 #include "rotiraj.h"
 
-void smithWatermanCuda(Protein&, Protein&);
+double smithWatermanCuda(Protein&, Protein&, bool);
+
+std::vector< Point3D > getNeighbour(const std::vector< Point3D > &points) {
+  std::vector< Point3D > ret;
+  double dx = 5 - rand() % 11;
+  double dy = 5 - rand() % 11;
+  double dz = 5 - rand() % 11;
+  double thetaX = 0.1 - 0.2*rand()/RAND_MAX;
+  double thetaY = 0.1 - 0.2*rand()/RAND_MAX;
+  double thetaZ = 0.1 - 0.2*rand()/RAND_MAX;
+  RotationMatrix rotacija = createRotationMatrix(thetaX, thetaY, thetaZ);
+  Point3D pomak = dajPomak(dx, dy, dz);
+  for (int i = 0; i < (int)points.size(); ++i) {
+    Point3D pomaknuta_tocka = rotacija*points[i] + pomak;
+    ret.push_back(pomaknuta_tocka);
+  }
+  return ret;
+}
+
+std::vector< Point3D > original;
+
+double getEnergy(const std::vector< Point3D > &other) {
+  Protein p1(original), p2(other);
+  return -smithWatermanCuda(p1, p2, true);
+}
+
+template< typename StateType, typename EnergyFunction, typename NextFunction >
+StateType annealing(const StateType &original, EnergyFunction getEnergy,
+                    NextFunction neighbour, int maxEvolution,
+                    double acceptable_energy) {
+  StateType current = original, next;
+  double energy_current = getEnergy(original), energy_next;
+  StateType best = current;
+  double energy_best = energy_current;
+
+  for (int i = 0; i < maxEvolution; ++i) {
+    if (energy_best <= acceptable_energy) break;
+    printf("Iteracija %d!\n", i+1);
+    double T = temperature(i);
+    next = neighbour(current);
+    energy_next = getEnergy(next);
+    printf("Najbolja energija = %g; Trenutna energija = %g\n", energy_best, energy_next);
+
+    if (P(energy_current, energy_next, T)*RAND_MAX > rand()) {
+      current = next;
+      energy_current = energy_next;
+    }
+    if (energy_current < energy_best) {
+      best = current;
+      energy_best = energy_current;
+    }
+  }
+  
+  printf("Energija = %g\n", energy_best);
+  return best;
+}
 
 int main()
 {
+  // Ucitaj podatke
   FILE *f = fopen("1a0iA.pdb", "r");
   char buff[1024];
   std::vector< Point3D > points, points2;
@@ -29,25 +85,17 @@ int main()
       points.push_back(Point3D(x,y,z));
     }
   }
-
-  double dx = 3;
-  double dy = 2;
-  double dz = 4;
-  double thetaX = 0.1;
-  double thetaY = 0.3;
-  double thetaZ = 0.5;
-  RotationMatrix rotacija = createRotationMatrix(thetaX, thetaY, thetaZ);
-  Point3D pomak = dajPomak(dx, dy, dz);
-
-  for (int i = 0; i < (int)points.size(); ++i) {
-    points2.push_back(rotacija * points[i] + pomak);
-  }
   
-  Protein p1(points), p2(points2);
-
-
+  // Pripremi ostale podatke
+  points2 = getNeighbour(points);
+  for (int i = 0; i < 10; ++i) {
+    points2 = getNeighbour(points2);
+  }
+  original = points;
+  
+  // Izracunaj rezultat
   cudaError_t cudaStatus;
-  smithWatermanCuda(p1, p2);
+  std::vector< Point3D > result = annealing(points2, getEnergy, getNeighbour, 1000, -1e100);
 
 	// cudaDeviceReset must be called before exiting in order for profiling and
 	// tracing tools such as Parallel Nsight and Visual Profiler to show complete traces.
@@ -94,6 +142,7 @@ __device__ double DistCost(const SimpleMolecule &A, const SimpleMolecule &B) {
   return 150 - (sqr(A.x - B.x) + sqr(A.y - B.y) + sqr(A.z - B.z));
 }
 
+// TODO: fix this
 __global__ void Step(int n1, SimpleMolecule *A,
                      int n2, SimpleMolecule *B,
                      int k, ResultType *R) {
@@ -119,11 +168,6 @@ __global__ void Step(int n1, SimpleMolecule *A,
 	}
 }
 
-__device__ __host__ RESULTTYPE::RESULTTYPE() : value(0), move(-1) {}
-__device__ __host__ RESULTTYPE::RESULTTYPE(ResultValue v, int m): value(v), move(m) {}
-
-
-__device__ __host__ int Protein::n() const { return n_; }
 
 void PrintResults(ResultType *R, int n, int m) {
   for (int i = 0; i <= n; ++i) {
@@ -133,6 +177,7 @@ void PrintResults(ResultType *R, int n, int m) {
     printf("\n");
   }
 }
+
 
 SimpleMolecule* SimpleMoleculeToDevice(const Protein &p, int start, int end, bool reverse=false)  {
   SimpleMolecule* host_ptr = new SimpleMolecule[end - start];
@@ -149,16 +194,18 @@ SimpleMolecule* SimpleMoleculeToDevice(const Protein &p, int start, int end, boo
       host_ptr[i-start].dc = p[p.n()-1-i].deletion_cost();
     }
   }
-  SimpleMolecule* ret = copyArrayToDevice(host_ptr, p.n());
+  SimpleMolecule* ret = copyArrayToDevice(host_ptr, end-start);
   delete [] host_ptr;
   return ret;
 }
+
 
 ResultType GetResultHost(ResultType* R, int i, int j, int n, int m) {
   if (i < -1 || j < -1 || i >= n || j >= m) return ResultType(0, -1);
   if (i == -1 || j == -1) return ResultType(0, -1);
   return R[(i+1)*(m+1) + j+1];
 }
+
 
 ResultType* SimpleResultsToDevice(ResultType* R, int offsetX, int offsetY,
                                    int n, int m, int countX, int countY) {
@@ -193,7 +240,7 @@ ResultType* SimpleResultsInit(int n, int m) {
 
 
 void solveOnePhase(const Protein &first, const Protein &second, int block_size,
-                   ResultType *results) {
+                   ResultType *results, bool silent=false) {
   int n = first.n();
   int m = second.n();
   SimpleMolecule *A;
@@ -215,7 +262,9 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
         endY = m;
       }
 
-      printf("Rjesavam blok od (%d,%d) do (%d,%d)!\n", offsetX, offsetY, endX, endY);
+      if (!silent) {
+        printf("Rjesavam blok od (%d,%d) do (%d,%d)!\n", offsetX, offsetY, endX, endY);
+      }
 
       A = SimpleMoleculeToDevice(first, offsetX, endX);
       B = SimpleMoleculeToDevice(second, offsetY, endY);
@@ -264,8 +313,9 @@ void Output(const std::vector< std::pair< int, int > > &A) {
   }
 }
 
-void smithWatermanCuda(Protein &first, Protein &second) {
+double smithWatermanCuda(Protein &first, Protein &second, bool silent=false) {
 	cudaError_t cudaStatus;
+  double res = 0;
 
   try {
 		// Choose which GPU to run on, change this on a multi-GPU system.
@@ -279,7 +329,7 @@ void smithWatermanCuda(Protein &first, Protein &second) {
     int m = second.n();
 
     ResultType *results = SimpleResultsInit(n, m);
-    solveOnePhase(first, second, block_size, results);
+    solveOnePhase(first, second, block_size, results, silent);
 
     int MX, MY;
     double mv = -1e100;
@@ -301,7 +351,7 @@ void smithWatermanCuda(Protein &first, Protein &second) {
     second_r.Reverse();
 
     ResultType *results2 = SimpleResultsInit(MX+1, MY+1);
-    solveOnePhase(first_r, second_r, block_size, results2);
+    solveOnePhase(first_r, second_r, block_size, results2, silent);
 
     int mx, my;
     mv = -1e100;
@@ -311,6 +361,7 @@ void smithWatermanCuda(Protein &first, Protein &second) {
           mx = i;
           my = j;
           mv = GetResultHost(results2, i, j, MX+1, MY+1).value;
+          res = mv;
         }
       }
     }
@@ -319,17 +370,22 @@ void smithWatermanCuda(Protein &first, Protein &second) {
     int left = MY-my;
     int bottom = MX;
     int right = MY;
-
-    printf("Najbolje rjesenje mi je od (%d,%d) do (%d,%d)\n", top, left, bottom, right);
+    
+    if (!silent) {
+      printf("Najbolje rjesenje mi je od (%d,%d) do (%d,%d)\n", top, left, bottom, right);
+    }
     std::vector< std::pair< int, int > > solution;
     Reconstruct(results2, mx, my, MX+1, MY+1, first_r, second_r, solution);
-    Output(solution);
+    if (!silent) {
+      Output(solution);
+    }
 
     delete [] results;
   } catch (const Exception &ex) {
 		ex.print();
 	}
 
+  return res;
 }
 
 
@@ -350,11 +406,9 @@ Protein Protein::createCopyOnCuda() const {
 
 
 
-
-
-////////////////////////////////////
-// Implementacije kernel funkcija //
-////////////////////////////////////
+///////////////////////////////////////////////
+// Implementacije pomocnih i kernel funkcija //
+///////////////////////////////////////////////
 double Molecule::x() const { 
   return x_;
 }
@@ -370,6 +424,12 @@ double Molecule::z() const {
 
 __device__ __host__ Molecule& Protein::operator[](int i) { return molecules_[i]; }
 __device__ __host__ Molecule& Protein::operator[](int i) const { return molecules_[i]; }
+
+__device__ __host__ RESULTTYPE::RESULTTYPE() : value(0), move(-1) {}
+__device__ __host__ RESULTTYPE::RESULTTYPE(ResultValue v, int m): value(v), move(m) {}
+
+__device__ __host__ int Protein::n() const { return n_; }
+
 
 template <typename T> T* copyArrayToDevice(const T *ptr, int size) {
 	T* dev_ptr;

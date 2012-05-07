@@ -35,6 +35,7 @@ class Protein
   double* CopyDCToDevice() const;
 
   friend std::istream& operator>>(std::istream&, Protein&);
+  friend std::ostream& operator<<(std::ostream&, Protein&);
 
  private:
   int n_;

@@ -84,3 +84,12 @@ std::istream& operator>>(std::istream& in, Protein& p) {
   return in;
 }
 
+std::ostream& operator<<(std::ostream& out, Protein& p) {
+  out << p.n_ << ": ";
+  for (int i = 0; i < p.n_; ++i) {
+    if (i) out << ", ";
+    out << p.molecules_[i];
+  }
+  return out;
+}
+

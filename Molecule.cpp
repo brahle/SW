@@ -49,6 +49,11 @@ std::istream& operator>>(std::istream& in, Molecule& molekula) {
   return in;
 }
 
+std::ostream& operator<<(std::ostream& out, Molecule& molekula) {
+  out << "(" << molekula.x_ << "," << molekula.y_ << "," << molekula.z_ << ")";
+  return out;
+}
+
 /*
 // Implemented in the kernel.cu file
 __device__ __host__ double Molecule::x() const { return x_; }

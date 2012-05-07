@@ -1,4 +1,6 @@
 #pragma once
+#ifndef __BRAHLE_CUDA_UTILS
+#define __BRAHLE_CUDA_UTILS
 #include <string>
 
 #include "cuda_runtime.h"
@@ -101,3 +103,14 @@ template <typename T> void copyArrayToHost(T &host_ptr, const T dev_ptr, int siz
 	}
 }
 */
+
+/////////////////////////////////////
+// Funkcije za simulirano kaljenje //
+/////////////////////////////////////
+const double T0 = 1.0;
+const double T1 = 0.95;
+
+template< typename _T > _T power(const _T &x, const int &n);
+double temperature(int k);
+double P(double old_e, double new_e, double T);
+#endif

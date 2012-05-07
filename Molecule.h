@@ -26,6 +26,7 @@ class Molecule
   void set_z(double z) { z_ = z; }
 
   friend std::istream& operator>>(std::istream&, Molecule&);
+  friend std::ostream& operator<<(std::ostream&, Molecule&);
 
  private:
   double x_, y_, z_;

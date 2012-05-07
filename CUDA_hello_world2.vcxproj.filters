@@ -18,6 +18,7 @@
     <ClCompile Include="Protein.cpp" />
     <ClCompile Include="Molecule.cpp" />
     <ClCompile Include="rotiraj.cpp" />
+    <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CUDA_hello_world2.rc" />
