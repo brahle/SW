@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 
 #include <string>
 #include <vector>
@@ -16,7 +17,7 @@
 #include "Molecule.h"
 #include "rotiraj.h"
 
-double smithWatermanCuda(Protein&, Protein&, bool);
+double smithWatermanCuda(Protein&, Protein&, bool, bool);
 
 std::vector< Point3D > getNeighbour(const std::vector< Point3D > &points) {
   std::vector< Point3D > ret;
@@ -39,7 +40,7 @@ std::vector< Point3D > original;
 
 double getEnergy(const std::vector< Point3D > &other) {
   Protein p1(original), p2(other);
-  return -smithWatermanCuda(p1, p2, true);
+  return -smithWatermanCuda(p1, p2, true, false);
 }
 
 template< typename StateType, typename EnergyFunction, typename NextFunction >
@@ -79,6 +80,7 @@ int main()
   FILE *f = fopen("1a0iA.pdb", "r");
   char buff[1024];
   std::vector< Point3D > points, points2;
+  printf("Ucitavam podatke...\n");
   while (fgets(buff, sizeof(buff), f)) {
     double x, y, z;
     if (sscanf(buff, "ATOM %*d CA %*s %*s %*d %lf %lf %lf", &x, &y, &z)==3) {
@@ -87,15 +89,17 @@ int main()
   }
   
   // Pripremi ostale podatke
+  printf("Rotiram ulazni niz...\n");
   points2 = getNeighbour(points);
   for (int i = 0; i < 10; ++i) {
     points2 = getNeighbour(points2);
   }
   original = points;
   
+  double start = clock();
   // Izracunaj rezultat
   cudaError_t cudaStatus;
-  std::vector< Point3D > result = annealing(points2, getEnergy, getNeighbour, 1000, -1e100);
+  std::vector< Point3D > result = annealing(points2, getEnergy, getNeighbour, 5, -1e100);
 
 	// cudaDeviceReset must be called before exiting in order for profiling and
 	// tracing tools such as Parallel Nsight and Visual Profiler to show complete traces.
@@ -106,7 +110,9 @@ int main()
     return 1;
   }
 
-	system("pause");
+  double end = clock();
+  printf("Vrijeme = %.2lfs\n", (end-start)/CLOCKS_PER_SEC);
+  // system("pause");
   return 0;
 }
 
@@ -143,28 +149,28 @@ __device__ double DistCost(const SimpleMolecule &A, const SimpleMolecule &B) {
 }
 
 // TODO: fix this
-__global__ void Step(int n1, SimpleMolecule *A,
-                     int n2, SimpleMolecule *B,
+__global__ void Step(int offsetX, int blockX, int n1, SimpleMolecule *A,
+                     int offsetY, int blockY, int n2, SimpleMolecule *B,
                      int k, ResultType *R) {
   int i = k - threadIdx.x;
   int j = threadIdx.x;
   
-  if (i >= n1 || j >= n2) {
+  if (i >= blockX || j >= blockY) {
     return;
   }
   ResultValue a, b, c;
-  a = GetResult(R, n1, n2, i-1, j-1).value + DistCost(A[i], B[j]);
-  b = GetResult(R, n1, n2, i-1, j).value + A[i].dc;
-  c = GetResult(R, n1, n2, i, j-1).value + B[j].dc;
+  a = GetResult(R, n1, n2, i-1, offsetY+j-1).value + DistCost(A[offsetX+i], B[offsetY+j]);
+  b = GetResult(R, n1, n2, i-1, offsetY+j).value + A[offsetX+i].dc;
+  c = GetResult(R, n1, n2, i, offsetY+j-1).value + B[offsetY+j].dc;
   
 	if (a >= b && a >= c) {
-    SetResult(R, n1, n2, i, j, ResultType(a, 1));
+    SetResult(R, n1, n2, i, offsetY+j, ResultType(a, 1));
 	}
 	else if (b >= a && b >= c) {
-    SetResult(R, n1, n2, i, j, ResultType(b, 2));
+    SetResult(R, n1, n2, i, offsetY+j, ResultType(b, 2));
 	}
 	else if (c >= b && c >= a) {
-    SetResult(R, n1, n2, i, j, ResultType(c, 3));
+    SetResult(R, n1, n2, i, offsetY+j, ResultType(c, 3));
 	}
 }
 
@@ -246,17 +252,21 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
   SimpleMolecule *A;
   SimpleMolecule *B;
   ResultType *R;
+  A = SimpleMoleculeToDevice(first, 0, n);
+  B = SimpleMoleculeToDevice(second, 0, n);
 
   for (int offsetX = 0; offsetX < n; offsetX += block_size) {
+    int blockX = block_size;
+    int endX = offsetX + block_size;
+    if (offsetX + block_size >= n) {
+      blockX = n - offsetX;
+      endX = n;
+    }
+    R = SimpleResultsToDevice(results, offsetX, 0, n, m, blockX, m);
+
     for (int offsetY = 0; offsetY < m; offsetY += block_size) {
-      int blockX = block_size;
       int blockY = block_size;
-      int endX = offsetX + block_size;
       int endY = offsetY + block_size;
-      if (offsetX + block_size >= n) {
-        blockX = n - offsetX;
-        endX = n;
-      }
       if (offsetY + block_size >= m) {
         blockY = m - offsetY;
         endY = m;
@@ -266,18 +276,13 @@ void solveOnePhase(const Protein &first, const Protein &second, int block_size,
         printf("Rjesavam blok od (%d,%d) do (%d,%d)!\n", offsetX, offsetY, endX, endY);
       }
 
-      A = SimpleMoleculeToDevice(first, offsetX, endX);
-      B = SimpleMoleculeToDevice(second, offsetY, endY);
-      R = SimpleResultsToDevice(results, offsetX, offsetY, n, m, blockX, blockY);
-
 		  // vrti petlju
 		  for (int i = 0; i < blockX+blockY-1; ++i) {
-        Step<<< 1, i+1 >>>(blockX, A, blockY, B, i, R);
+        Step<<< 1, i+1 >>>(offsetX, blockX, blockX, A, offsetY, blockY, m, B, i, R);
         SyncCudaThreads();
 		  }
-
-      SimpleResultsToHost(results,  offsetX, offsetY, n, m, R, blockX, blockY);
     }
+    SimpleResultsToHost(results,  offsetX, 0, n, m, R, blockX, m);
   }
 
   cudaFree(A);
@@ -313,7 +318,7 @@ void Output(const std::vector< std::pair< int, int > > &A) {
   }
 }
 
-double smithWatermanCuda(Protein &first, Protein &second, bool silent=false) {
+double smithWatermanCuda(Protein &first, Protein &second, bool silent=false, bool reconstruct=true) {
 	cudaError_t cudaStatus;
   double res = 0;
 
@@ -324,7 +329,7 @@ double smithWatermanCuda(Protein &first, Protein &second, bool silent=false) {
 			throw CudaException(cudaStatus, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
 		}
 
-    int block_size = 40;
+    int block_size = 400;
     int n = first.n();
     int m = second.n();
 
@@ -374,10 +379,12 @@ double smithWatermanCuda(Protein &first, Protein &second, bool silent=false) {
     if (!silent) {
       printf("Najbolje rjesenje mi je od (%d,%d) do (%d,%d)\n", top, left, bottom, right);
     }
-    std::vector< std::pair< int, int > > solution;
-    Reconstruct(results2, mx, my, MX+1, MY+1, first_r, second_r, solution);
-    if (!silent) {
-      Output(solution);
+    if (reconstruct) {
+      std::vector< std::pair< int, int > > solution;
+      Reconstruct(results2, mx, my, MX+1, MY+1, first_r, second_r, solution);
+      if (!silent) {
+        Output(solution);
+      }
     }
 
     delete [] results;
