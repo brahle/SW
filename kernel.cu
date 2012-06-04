@@ -114,7 +114,10 @@ struct Stanje {
   Stanje() : original(), P(), dx(0.0), dy(0.0), dz(0.0), thetaX(0.0), thetaY(0.0), thetaZ(0.0) {}
 
   Stanje(::Protein *p) : original(), P(), dx(0.0), dy(0.0), dz(0.0), thetaX(0.0), thetaY(0.0), thetaZ(0.0) {
-    // TODO: implement this
+    for (int i = 0; i < p->length; ++i) {
+      P.push_back(Point3D(p->sequence[i].Ca->x, p->sequence[i].Ca->y, p->sequence[i].Ca->z));
+    }
+    original = P;
   }
 
   void ucitaj(const char *file_name) {
