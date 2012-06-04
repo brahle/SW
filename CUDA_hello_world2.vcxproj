@@ -86,6 +86,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <None Include="input.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="consts.h" />
     <ClInclude Include="Molecule.h" />
     <ClInclude Include="Protein.h" />
     <ClInclude Include="resource.h" />

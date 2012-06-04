@@ -3,6 +3,8 @@
 #include "utilities.h"
 #include "cuda_runtime.h"
 
+using namespace nbrahle;
+
 Protein::Protein(void)
   : n_(0),
     molecules_(0),
@@ -75,7 +77,7 @@ __device__ __host__ Molecule& Protein::operator[](int i) { return molecules_[i];
 */
 
 
-std::istream& operator>>(std::istream& in, Protein& p) {
+std::istream& ::operator>>(std::istream& in, nbrahle::Protein& p) {
   in >> p.n_;
   p.molecules_ = new Molecule[p.n_];
   for (int i = 0; i < p.n_; ++i) {
@@ -84,7 +86,7 @@ std::istream& operator>>(std::istream& in, Protein& p) {
   return in;
 }
 
-std::ostream& operator<<(std::ostream& out, Protein& p) {
+std::ostream& ::operator<<(std::ostream& out, nbrahle::Protein& p) {
   out << p.n_ << ": ";
   for (int i = 0; i < p.n_; ++i) {
     if (i) out << ", ";

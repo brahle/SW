@@ -13,6 +13,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="typedefs.h" />
     <ClInclude Include="rotiraj.h" />
+    <ClInclude Include="consts.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Protein.cpp" />

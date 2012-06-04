@@ -6,6 +6,8 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
+const int block_size = 500;
+
 //////////////////////////////////////
 // Razne iznimke koje mozemo baciti //
 //////////////////////////////////////
@@ -63,6 +65,7 @@ public:
 //////////////////////////////////////////////////
 // Funkcije za kopiranje na karticu i s kartice //
 //////////////////////////////////////////////////
+template <typename T> void allocArrayOnDevice(T **ptr, int size);
 template <typename T> T* copyArrayToDevice(const T *ptr, int size);
 template <typename T> T* copyArrayToHost(const T *ptr, int size);
 template <typename T> void copyArrayToHost(T &host_ptr, const T dev_ptr, int size);
@@ -107,8 +110,8 @@ template <typename T> void copyArrayToHost(T &host_ptr, const T dev_ptr, int siz
 /////////////////////////////////////
 // Funkcije za simulirano kaljenje //
 /////////////////////////////////////
-const double T0 = 1.0;
-const double T1 = 0.95;
+const double T0 = 10000.0;
+const double T1 = 0.9;
 
 template< typename _T > _T power(const _T &x, const int &n);
 double temperature(int k);

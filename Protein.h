@@ -9,6 +9,8 @@
 #include "utilities.h"
 #include "rotiraj.h"
 
+namespace nbrahle { 
+
 class Protein
 {
  public:
@@ -34,8 +36,8 @@ class Protein
   double* CopyZToDevice() const;
   double* CopyDCToDevice() const;
 
-  friend std::istream& operator>>(std::istream&, Protein&);
-  friend std::ostream& operator<<(std::ostream&, Protein&);
+  friend std::istream& operator>>(std::istream&, nbrahle::Protein&);
+  friend std::ostream& operator<<(std::ostream&, nbrahle::Protein&);
 
  private:
   int n_;
@@ -43,4 +45,4 @@ class Protein
   bool on_cuda_;
   int end_;
 };
-
+}

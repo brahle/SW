@@ -4,6 +4,8 @@
 #include <string>
 #include "rotiraj.h"
 
+using namespace nbrahle;
+
 Molecule::Molecule()
     : x_(0),
       y_(0),
@@ -42,14 +44,14 @@ Molecule::~Molecule()
 }
 
 
-std::istream& operator>>(std::istream& in, Molecule& molekula) {
+std::istream& ::operator>>(std::istream& in, Molecule& molekula) {
   in >> molekula.name_;
   in >> molekula.deletion_cost_;
   in >> molekula.x_ >> molekula.y_ >> molekula.z_;
   return in;
 }
 
-std::ostream& operator<<(std::ostream& out, Molecule& molekula) {
+std::ostream& ::operator<<(std::ostream& out, Molecule& molekula) {
   out << "(" << molekula.x_ << "," << molekula.y_ << "," << molekula.z_ << ")";
   return out;
 }

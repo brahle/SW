@@ -57,10 +57,13 @@ c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\vector_types.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\device_launch_parameters.h
 c:\program files\nvidia gpu computing toolkit\cuda\v4.0\include\vector_types.h
-c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\cstdio
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\cassert
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\yvals.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\use_ansi.h
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\assert.h
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
+c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\cstdio
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\swprintf.inl
@@ -253,3 +256,4 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h
 c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\Molecule.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include\cuda_runtime.h
 c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\rotiraj.h
+c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\consts.h

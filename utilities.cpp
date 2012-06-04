@@ -13,6 +13,7 @@ double temperature(int k) {
 }
 
 double P(double old_e, double new_e, double T) {
+  if (new_e < old_e) return 1.0;
   return 1 / (1 + exp((new_e - old_e) / T));
 }
 
