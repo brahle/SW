@@ -1,0 +1,21 @@
+Pre-requirements
+----------------
+* NVIDIA CUDA-capable graphics card.
+* NVIDIA GPU Computing SDK 4.0
+* Visual Studio 2010 (Windows only)
+
+Installation (Windows)
+----------------------
+Easiest way to install it is to import the .sln
+project file to your Visual Studio 2010 with
+CUDA SDK installed. From there, you should be
+able to simply build the solution. 
+
+Installation (UNIX)
+-------------------
+You will have to run the nvcc compiler manually
+on the project. If you have all the required
+libraries installed, it is as simple as
+running from the root directory.
+
+    nvcc *.cu *.cpp -o SWIG -Wall

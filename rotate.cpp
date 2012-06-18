@@ -1,4 +1,4 @@
-#include "rotiraj.h"
+#include "rotate.h"
 
 Point3D operator+(Point3D A, const Point3D &B) {
   static int n = 3;
@@ -61,7 +61,7 @@ RotationMatrix createRotationMatrix(double thetaX, double thetaY, double thetaZ)
   return (rotateX(thetaX) * rotateY(thetaY)) * rotateZ(thetaZ);
 }
 
-Point3D dajPomak(double x, double y, double z) {
+Point3D getTranslation(double x, double y, double z) {
   return Point3D(x, y, z);
 }
 

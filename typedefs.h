@@ -1,3 +1,5 @@
+#pragma once
+
 typedef double ResultValue;
 typedef struct RESULTTYPE {
   ResultValue value;
@@ -7,3 +9,5 @@ typedef struct RESULTTYPE {
   __device__ __host__ RESULTTYPE(ResultValue v, int m); //: value(v), move(m) {}
 } ResultType;
 typedef ResultType* ResultTypePtr;
+
+struct SimpleMolecule { double x, y, z, dc; };

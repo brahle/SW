@@ -2,6 +2,12 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <None Include="input.txt" />
+    <None Include="Doxyfile" />
+    <None Include="annealing.cuh" />
+    <None Include="find_maximum.cuh" />
+    <None Include="utilities.cuh" />
+    <None Include="README.txt" />
+    <None Include="INSTALL.txt" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="kernel.cu" />
@@ -12,14 +18,17 @@
     <ClInclude Include="Molecule.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="typedefs.h" />
-    <ClInclude Include="rotiraj.h" />
     <ClInclude Include="consts.h" />
+    <ClInclude Include="external_structs.h" />
+    <ClInclude Include="State.h" />
+    <ClInclude Include="rotate.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Protein.cpp" />
     <ClCompile Include="Molecule.cpp" />
-    <ClCompile Include="rotiraj.cpp" />
     <ClCompile Include="utilities.cpp" />
+    <ClCompile Include="State.cpp" />
+    <ClCompile Include="rotate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CUDA_hello_world2.rc" />

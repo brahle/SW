@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <string>
-#include "rotiraj.h"
+#include "rotate.h"
 
 using namespace nbrahle;
 
@@ -57,7 +57,7 @@ std::ostream& ::operator<<(std::ostream& out, Molecule& molekula) {
 }
 
 /*
-// Implemented in the kernel.cu file
+// Implemented in the utilities.cuh file
 __device__ __host__ double Molecule::x() const { return x_; }
 __device__ __host__ double Molecule::y() const { return y_; }
 __device__ __host__ double Molecule::z() const { return z_; }

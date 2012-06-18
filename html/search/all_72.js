@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['read',['read',['../class_state.html#a39a901273bdb41a62a24c77fd642e689',1,'State']]],
+  ['reconstruct',['Reconstruct',['../kernel_8cu.html#ac84968a938228a1459c464b35f8662b6',1,'kernel.cu']]],
+  ['reducemax',['reduceMax',['../find__maximum_8cuh.html#ac0c477fb7ff2dda269312be7c5e90de0',1,'find_maximum.cuh']]],
+  ['res_5falmt_5flength',['res_almt_length',['../struct_map.html#ab555555fb8bf0f6ca41a19e121cb90ff',1,'Map']]],
+  ['res_5falmt_5fscore',['res_almt_score',['../struct_map.html#aeafbfc74fc8bdeb57f4452499895db00',1,'Map']]],
+  ['res_5frmsd',['res_rmsd',['../struct_map.html#a5d7a2c0dac8cdea0a1ede2bdffd95d0f',1,'Map']]],
+  ['res_5ftype',['res_type',['../struct_residue.html#a0c4763fdfca410d3e50773fe56f87e6d',1,'Residue']]],
+  ['res_5ftype_5fshort',['res_type_short',['../struct_residue.html#ac59589e9a7fb0ec452c652b49fc7c564',1,'Residue']]],
+  ['reset',['reset',['../class_state.html#a4e93b6afe93bea420937159c4993a627',1,'State']]],
+  ['residue',['Residue',['../struct_residue.html',1,'']]],
+  ['resize',['Resize',['../classnbrahle_1_1_protein.html#a2bb29918887d0aba080f38704423a312',1,'nbrahle::Protein']]],
+  ['resource_2eh',['resource.h',['../resource_8h.html',1,'']]],
+  ['resulttype',['RESULTTYPE',['../struct_r_e_s_u_l_t_t_y_p_e.html',1,'RESULTTYPE'],['../struct_r_e_s_u_l_t_t_y_p_e.html#a22eb732d92b979df2e40d66c9da03610',1,'RESULTTYPE::RESULTTYPE()'],['../struct_r_e_s_u_l_t_t_y_p_e.html#a6293dd0c5529f428dbf377df1151e569',1,'RESULTTYPE::RESULTTYPE(ResultValue v, int m)'],['../typedefs_8h.html#a4c41f4abdf7051a09df394d63076dab5',1,'ResultType():&#160;typedefs.h']]],
+  ['resulttypeptr',['ResultTypePtr',['../typedefs_8h.html#a8cddc7f3162a5f73eb4d5706f640e0ee',1,'typedefs.h']]],
+  ['resultvalue',['ResultValue',['../typedefs_8h.html#a8d933216f816805aea328cbf3c196868',1,'typedefs.h']]],
+  ['reverse',['Reverse',['../classnbrahle_1_1_protein.html#a9ed361cb50da280a13ad08de8036efbb',1,'nbrahle::Protein']]],
+  ['rmsd',['rmsd',['../struct_map.html#ab4dc0735215d273dc20cfb71116e3aef',1,'Map']]],
+  ['rotate_2ecpp',['rotate.cpp',['../rotate_8cpp.html',1,'']]],
+  ['rotate_2eh',['rotate.h',['../rotate_8h.html',1,'']]],
+  ['rotatex',['rotateX',['../rotate_8cpp.html#a5e86102d9a24f1e49d25ada885c5ec45',1,'rotateX(double theta):&#160;rotate.cpp'],['../rotate_8h.html#a5e86102d9a24f1e49d25ada885c5ec45',1,'rotateX(double theta):&#160;rotate.cpp']]],
+  ['rotatey',['rotateY',['../rotate_8cpp.html#a7cff99fddcc860ace8f69c50e7b2fbeb',1,'rotateY(double theta):&#160;rotate.cpp'],['../rotate_8h.html#a7cff99fddcc860ace8f69c50e7b2fbeb',1,'rotateY(double theta):&#160;rotate.cpp']]],
+  ['rotatez',['rotateZ',['../rotate_8cpp.html#acc5a7b6f5f729b00d1655b5d640faa19',1,'rotateZ(double theta):&#160;rotate.cpp'],['../rotate_8h.html#acc5a7b6f5f729b00d1655b5d640faa19',1,'rotateZ(double theta):&#160;rotate.cpp']]],
+  ['rotationmatrix',['RotationMatrix',['../struct_rotation_matrix.html',1,'']]]
+];

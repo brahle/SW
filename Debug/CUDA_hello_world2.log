@@ -1,29 +1,70 @@
-﻿Build started 2012-06-04 14:08:06.
-     1>Project "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\CUDA_hello_world2.vcxproj" on node 3 (build target(s)).
-     1>InitializeBuildStatus:
+﻿Build started 2012-06-18 16:38:14.
+     1>Project "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\CUDA_hello_world2.vcxproj" on node 3 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Debug\SW CUDA.lastbuildstate".
+       CudaClean:
+         cmd.exe /C "C:\Users\brahle\AppData\Local\Temp\a205f29c3f4f44f29bb160bc85b03c71.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu" -clean
+         
+         C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu" -clean 
+         Deleting file "Debug\kernel.cu.deps".
+       InitializeBuildStatus:
          Creating "Debug\SW CUDA.unsuccessfulbuild" because "AlwaysCreate" was specified.
        AddCudaCompileDeps:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /I. /FIcuda_runtime.h /c "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu" 
        AddCudaCompilePropsDeps:
-       Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
+         Found "CudaToolkitCustomDir".
+         Found "AdditionalDeps".
+         Found "CompileOut".
+         Found "Include".
+         Found "Keep".
+         Found "KeepDir".
+         Found "NvccCompilation".
+         Found "NvccPath".
+         Found "RequiredIncludes".
+         Found "TargetMachinePlatform".
+         Found "CInterleavedPTX".
+         Found "CodeGeneration".
+         Found "GPUDebugInfo".
+         Found "MaxRegCount".
+         Found "PtxAsOptionV".
+         Found "Defines".
+         Found "Emulation".
+         Found "HostDebugInfo".
+         Found "FastMath".
+         Found "Optimization".
+         Found "Runtime".
+         Found "RuntimeChecks".
+         Found "TypeInfo".
+         Found "Warning".
+         Found "AdditionalOptions".
+         Found "CommandLineTemplate".
        CudaBuild:
          Compiling CUDA source file kernel.cu...
-         cmd.exe /C "C:\Users\brahle\AppData\Local\Temp\39e9e0edb7da466e9f0cf7d3a8dcd2f2.cmd"
+         cmd.exe /C "C:\Users\brahle\AppData\Local\Temp\1e9b4fba3f964fb2b70edfd7b2753228.cmd"
          "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu"
          
          C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\nvcc.exe" -gencode=arch=compute_10,code=\"sm_10,compute_10\" --use-local-env --cl-version 2010 -ccbin "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include"  -G0  --keep-dir "Debug" -maxrregcount=0  --machine 32 --compile  -D_NEXUS_DEBUG -g    -Xcompiler "/EHsc /nologo /Od /Zi  /MDd " -o "Debug\kernel.cu.obj" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\kernel.cu" 
          kernel.cu
-         tmpxft_00001290_00000000-0_kernel.cudafe1.gpu
-         tmpxft_00001290_00000000-5_kernel.cudafe2.gpu
+         tmpxft_00001b08_00000000-0_kernel.cudafe1.gpu
+         tmpxft_00001b08_00000000-5_kernel.cudafe2.gpu
          kernel.cu
-     1>ptxas C : /Users/brahle/AppData/Local/Temp/tmpxft_00001290_00000000-1_kernel.ptx, line 154; warning : Double is not supported. Demoting to float
-         tmpxft_00001290_00000000-0_kernel.cudafe1.cpp
-         tmpxft_00001290_00000000-11_kernel.ii
-         Deleting file "tmpxft_00001290_00000000-6_kernel.cpp3.o".
+     1>ptxas C : /Users/brahle/AppData/Local/Temp/tmpxft_00001b08_00000000-1_kernel.ptx, line 66; warning : Double is not supported. Demoting to float
+         tmpxft_00001b08_00000000-0_kernel.cudafe1.cpp
+         tmpxft_00001b08_00000000-11_kernel.ii
+         Deleting file "tmpxft_00001b08_00000000-6_kernel.cpp3.o".
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Molecule.cpp
-         Skipping... (no relevant changes detected)
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Molecule.cpp Protein.cpp rotate.cpp State.cpp utilities.cpp
+         utilities.cpp
+         State.cpp
+     1>c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\state.cpp(28): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
+     1>c:\users\brahle\documents\visual studio 2010\projects\cuda_hello_world2\cuda_hello_world2\state.cpp(34): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(325) : see declaration of 'sscanf'
+         rotate.cpp
+         Protein.cpp
          Molecule.cpp
+         Generating Code...
        ResourceCompile:
          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /l"0x0409" /nologo /fo"Debug\CUDA_hello_world2.res" CUDA_hello_world2.rc 
        ManifestResourceCompile:
@@ -34,15 +75,26 @@
          "Debug\SW CUDA.exe.embed.manifest.res"
          Debug\Molecule.obj
          Debug\Protein.obj
-         Debug\rotiraj.obj
+         Debug\rotate.obj
+         Debug\State.obj
          Debug\utilities.obj
      1>LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
      1>Molecule.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:REF' specification
        Manifest:
+         Deleting file "Debug\SW CUDA.exe.embed.manifest".
          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\SW CUDA.exe.embed.manifest" /manifest "Debug\SW CUDA.exe.intermediate.manifest"
-         All outputs are up-to-date.
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\SW CUDA.exe.embed.manifest.res" "Debug\SW CUDA_manifest.rc" 
        LinkEmbedManifest:
-         All outputs are up-to-date.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\Debug\SW CUDA.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\SW CUDA.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\Debug\SW CUDA.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\Debug\SW CUDA.lib" /MACHINE:X86 /PROFILE Debug\kernel.cu.obj
+         Debug\CUDA_hello_world2.res
+         "Debug\SW CUDA.exe.embed.manifest.res"
+         Debug\Molecule.obj
+         Debug\Protein.obj
+         Debug\rotate.obj
+         Debug\State.obj
+         Debug\utilities.obj
+     1>LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/PROFILE' specification
+     1>Molecule.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:REF' specification
          CUDA_hello_world2.vcxproj -> C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\Debug\SW CUDA.exe
        PostBuildEvent:
          echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\bin\cudart*.dll" "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\Debug\"
@@ -55,8 +107,8 @@
        FinalizeBuildStatus:
          Deleting file "Debug\SW CUDA.unsuccessfulbuild".
          Touching "Debug\SW CUDA.lastbuildstate".
-     1>Done Building Project "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\CUDA_hello_world2.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\brahle\Documents\Visual Studio 2010\Projects\CUDA_hello_world2\CUDA_hello_world2\CUDA_hello_world2.vcxproj" (rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:11.22
+Time Elapsed 00:00:11.11
